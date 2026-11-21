@@ -169,6 +169,31 @@ pre.code{margin:12px 0 0;padding:14px 16px;background:#050712;border:1px solid v
 .chip.on{color:var(--amber);border-color:var(--amber)}
 .chip[disabled]{opacity:.4;cursor:not-allowed}
 
+.lvl{display:inline-block;font:900 10px var(--disp);letter-spacing:.2em;padding:4px 8px;color:#02030a;background:var(--c);margin-left:8px;vertical-align:middle;box-shadow:0 0 12px var(--c)}
+.lvcards{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}
+.lvcard{cursor:pointer;border:0;padding:0;background:none;color:inherit;font:inherit;text-align:left;transition:transform .15s}
+.lvcard:hover{transform:translateY(-4px)}
+.lvcard .panel{border-top:3px solid var(--lc);min-height:160px;display:flex;flex-direction:column;gap:8px}
+.lvcard h3{color:var(--lc);font-size:22px;text-shadow:0 0 14px var(--lc)}
+.lvcard p{margin:0;color:var(--dim);font-size:16px;line-height:1.25}
+.lvcard .cnt{margin-top:auto;font:700 11px var(--disp);letter-spacing:.2em;color:var(--dim)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.chip.lv{border-color:var(--c);color:var(--c)}
+.chip.lv.on{background:var(--c);color:#02030a;box-shadow:0 0 16px var(--c)}
+.review{display:flex;flex-direction:column;gap:10px}
+.rv{border:1px solid var(--line);background:linear-gradient(160deg,var(--panel2),var(--panel));padding:0}
+.rv summary{list-style:none;cursor:pointer;padding:14px 16px;display:flex;gap:12px;align-items:flex-start}
+.rv summary::-webkit-details-marker{display:none}
+.rv .mk{flex:none;width:28px;height:28px;display:grid;place-items:center;font:900 14px var(--disp);color:#02030a}
+.rv.ok{border-left:4px solid var(--lime)}.rv.ok .mk{background:var(--lime)}
+.rv.bad{border-left:4px solid var(--red)}.rv.bad .mk{background:var(--red)}
+.rv .qt{flex:1;font-size:17px;line-height:1.3;white-space:pre-wrap}
+.rv .body{padding:0 16px 16px 56px;display:flex;flex-direction:column;gap:8px;font-size:16px}
+.rv .ans{padding:8px 12px;border-left:3px solid var(--line);background:#070a18}
+.rv .ans.c{border-left-color:var(--lime)}.rv .ans.w{border-left-color:var(--red)}
+.rv .ans b{font:700 10px var(--disp);letter-spacing:.2em;color:var(--dim);display:block;margin-bottom:2px}
+.rv .ex{color:var(--ink);opacity:.9;line-height:1.35}
+.rvhd{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px}
 /* lobby */
 .vs{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center}
 .slot{padding:22px 16px;text-align:center;min-height:130px;display:flex;flex-direction:column;justify-content:center;gap:6px}
@@ -226,9 +251,17 @@ const app = $('#app');
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const LET = ['A', 'B', 'C', 'D'];
 const TOPICS_UI = {
-  keys: ['🔑', 'Keys & Relational Model'], norm: ['🧬', 'Normalization'], sql: ['⚡', 'SQL Queries'],
-  join: ['🔗', 'Joins'], tx: ['🛡️', 'Transactions & ACID'], idx: ['🚀', 'Indexing'], er: ['🗺️', 'ER Modeling']
+  arch: ['🏛️', 'DBMS Basics & Architecture'], keys: ['🔑', 'Keys & Relational Model'], ra: ['∑', 'Relational Algebra'], er: ['🗺️', 'ER Modeling'],
+  sql: ['⚡', 'SQL Queries'], join: ['🔗', 'Joins'], norm: ['🧬', 'Normalization'], tx: ['🛡️', 'Transactions & ACID'],
+  idx: ['🚀', 'Indexing'], opt: ['🧠', 'Storage & Query Optimization'], dist: ['🌐', 'Distributed & NoSQL']
 };
+const LEVEL_UI = {
+  easy: ['EASY', '#7dff6b', 'Warm-up. Core definitions and basic SQL.'],
+  moderate: ['MODERATE', '#ffb62e', 'Real exam level. Concepts applied to queries and design.'],
+  hard: ['HARD', '#ff4466', 'Interview boss fights. Edge cases, internals, tricky traps.'],
+  mixed: ['MIXED', '#19e6ff', 'A bit of everything: 30% easy, 40% moderate, 30% hard.']
+};
+const lvBadge = (l) => `<span class="lvl" style="--c:${(LEVEL_UI[l] || LEVEL_UI.mixed)[1]}">${(LEVEL_UI[l] || LEVEL_UI.mixed)[0]}</span>`;
 const RANKS = [
   [0, 'Rookie'], [100, 'Query Cadet'], [300, 'Index Ranger'], [600, 'Join Knight'], [1000, 'Schema Master'], [1600, 'ACID Legend']
 ];
@@ -305,6 +338,18 @@ const logoHTML = `<div class="logo"><div class="a">CS <b>ARENA</b></div><div cla
 const footHTML = `<div class="foot">PLAY · LEARN · LEVEL UP</div>`;
 function setScreen(html, cls = '') { app.innerHTML = `<div class="screen ${cls}">${html}</div>`; window.scrollTo(0, 0); }
 
+function reviewHTML(items) {
+  const missed = items.filter((x) => x.yours !== x.q.answer).length;
+  const row = (x, n) => {
+    const ok = x.yours === x.q.answer, zn = TOPICS_UI[x.q.topic] || ['', ''];
+    return `<details class="rv ${ok ? 'ok' : 'bad'}" ${ok ? '' : 'open'}><summary><span class="mk">${ok ? '✓' : '✗'}</span><span class="qt"><span class="dim small" style="font-family:var(--disp);letter-spacing:.14em">Q${n} · ${esc(zn[1].toUpperCase())}</span>${lvBadge(x.q.level)}<br>${esc(x.q.text).replace(/\n/g, '<br>')}</span></summary>
+      <div class="body">${ok ? '' : `<div class="ans w"><b>${x.yours === null || x.yours === undefined ? 'YOU DID NOT ANSWER' : 'YOUR ANSWER'}</b>${x.yours === null || x.yours === undefined ? '-' : esc(x.q.options[x.yours])}</div>`}
+      <div class="ans c"><b>CORRECT ANSWER</b>${esc(x.q.options[x.q.answer])}</div><div class="ex"><b style="font:700 10px var(--disp);letter-spacing:.2em;color:var(--cyan)">WHY</b><br>${esc(x.q.explain)}</div></div></details>`;
+  };
+  const order = items.map((x, i) => [x, i + 1]).sort((a, b) => (a[0].yours === a[0].q.answer) - (b[0].yours === b[0].q.answer));
+  return `<div><div class="rvhd"><label class="lbl" style="margin:0">Review &amp; learn</label><span class="small dim">${missed ? missed + ' to revisit (shown first)' : 'Perfect, nothing missed'} · tap a card to expand</span></div><div class="review" style="margin-top:10px">${order.map(([x, n]) => row(x, n)).join('')}</div></div>`;
+}
+
 /* ============================================================ HOME */
 let sock = null, S = {}; // S: current session state
 function profileHTML() {
@@ -327,15 +372,15 @@ function home(prefillRoom) {
       <input type="text" id="nick" maxlength="16" placeholder="e.g. NullPointer" value="${esc(P.name)}" autocomplete="off" autocapitalize="off" spellcheck="false">
     </div>
     <div class="modes">
-      <button class="mode solo" id="m-solo"><div class="panel cut edge"><div class="ico">🎓</div><h3>Solo Academy</h3><p>Train in DBMS zones with instant feedback, explanations, 50/50 power-ups and XP.</p><div class="tag">PRACTICE · EARN XP</div></div></button>
+      <button class="mode solo" id="m-solo"><div class="panel cut edge"><div class="ico">🎓</div><h3>Solo Academy</h3><p>Pick Easy, Moderate or Hard, train in DBMS zones, learn from every answer, earn XP.</p><div class="tag">PRACTICE · EARN XP</div></div></button>
       <button class="mode create" id="m-create"><div class="panel cut edge"><div class="ico">⚔️</div><h3>Create Battle</h3><p>Open a 1v1 arena, share the invite link, and race a friend on the same 10 questions.</p><div class="tag">1V1 · LIVE · TIMED</div></div></button>
       <button class="mode join" id="m-join"><div class="panel cut edge"><div class="ico">🎯</div><h3>Join Battle</h3><p>Got a room code or invite link? Step into your friend's arena.</p><div class="tag">ENTER CODE</div></div></button>
     </div>
     ${footHTML}`);
   const nick = $('#nick');
   const name = () => { const n = nick.value.trim().slice(0, 16) || 'Player'; P.name = nick.value.trim().slice(0, 16); store.save(); return n; };
-  $('#m-solo').onclick = () => { sfx.click(); name(); zones(); };
-  $('#m-create').onclick = () => { sfx.click(); S = { name: name() }; openSock(() => sendWS({ t: 'create', name: S.name })); };
+  $('#m-solo').onclick = () => { sfx.click(); name(); levelScreen(); };
+  $('#m-create').onclick = () => { sfx.click(); S = { name: name() }; openSock(() => sendWS({ t: 'create', name: S.name, level: 'mixed' })); };
   $('#m-join').onclick = () => { sfx.click(); S = { name: name() }; joinScreen(''); };
   if (prefillRoom) { S = { name: P.name || 'Player' }; joinScreen(prefillRoom); }
 }
@@ -363,25 +408,37 @@ function joinScreen(code) {
 }
 
 /* ============================================================ SOLO */
-async function zones() {
-  let topics = [];
-  try { topics = await (await fetch('/api/topics')).json(); } catch { toast('Could not reach the arena server', true); }
-  const total = topics.reduce((a, t) => a + t.count, 0);
+async function levelScreen() {
+  let c = { easy: 0, moderate: 0, hard: 0, total: 0 };
+  try { c = await (await fetch('/api/levels')).json(); } catch { toast('Could not reach the arena server', true); }
   setScreen(`
     <div class="topbar"><button class="back" id="bk">‹ Home</button><span class="rankname">${esc(rankOf(P.xp).name)} · ${P.xp} XP</span></div>
-    <div><h2 style="font-size:clamp(22px,5vw,34px)">Training Zones</h2><div class="dim">Pick a zone. 10 questions per run, instant feedback, 2 power-ups.</div></div>
+    <div><h2 style="font-size:clamp(22px,5vw,34px)">Choose your difficulty</h2><div class="dim">${c.total} questions across 11 DBMS zones. Every answer comes with an explanation, and you get a full review at the end.</div></div>
+    <div class="lvcards">${['easy', 'moderate', 'hard', 'mixed'].map((l) => `<button class="lvcard" data-l="${l}" style="--lc:${LEVEL_UI[l][1]}"><div class="panel cut edge"><h3>${LEVEL_UI[l][0]}</h3><p>${LEVEL_UI[l][2]}</p><div class="cnt">${l === 'mixed' ? c.total : c[l]} QUESTIONS</div></div></button>`).join('')}</div>${footHTML}`);
+  $('#bk').onclick = () => { sfx.click(); home(); };
+  app.querySelectorAll('.lvcard').forEach((z) => (z.onclick = () => { sfx.click(); zones(z.dataset.l); }));
+}
+async function zones(level) {
+  let topics = [];
+  try { topics = await (await fetch('/api/topics?level=' + (level === 'mixed' ? '' : level))).json(); } catch { toast('Could not reach the arena server', true); }
+  topics = topics.filter((t) => t.count > 0);
+  const total = topics.reduce((a, t) => a + t.count, 0);
+  setScreen(`
+    <div class="topbar"><button class="back" id="bk">‹ Difficulty</button><span class="rankname">${esc(rankOf(P.xp).name)} · ${P.xp} XP</span></div>
+    <div><h2 style="font-size:clamp(22px,5vw,34px)">Training Zones ${lvBadge(level)}</h2><div class="dim">Pick a zone, or take the Gauntlet. 10 questions per run (fewer if a zone has fewer at this level). 2 power-ups.</div></div>
     <div class="zones">
-      <button class="zone all" data-t="all"><div class="panel cut edge"><div class="ico">🔥</div><h3>Mixed Gauntlet</h3><div class="meta">${total} QUESTIONS · ALL ZONES</div><div class="bar"><i style="width:0"></i></div></div></button>
+      <button class="zone all" data-t="all"><div class="panel cut edge"><div class="ico">🔥</div><h3>${level === 'mixed' ? 'Mixed' : LEVEL_UI[level][0]} Gauntlet</h3><div class="meta">${total} QUESTIONS · ALL ZONES</div><div class="bar"><i style="width:0"></i></div></div></button>
       ${topics.map((t) => { const m = P.mastery[t.id] || { c: 0, t: 0 }; const pct = m.t ? Math.round(100 * m.c / m.t) : 0; return `<button class="zone" data-t="${t.id}"><div class="panel cut edge"><div class="ico">${t.icon}</div><h3>${esc(t.name)}</h3><div class="meta">${t.count} QUESTIONS · ${m.t ? pct + '% MASTERY' : 'NEW'}</div><div class="bar"><i style="width:${pct}%"></i></div></div></button>`; }).join('')}
     </div>${footHTML}`);
-  $('#bk').onclick = () => { sfx.click(); home(); };
-  app.querySelectorAll('.zone').forEach((z) => (z.onclick = () => { sfx.click(); soloRun(z.dataset.t); }));
+  $('#bk').onclick = () => { sfx.click(); levelScreen(); };
+  app.querySelectorAll('.zone').forEach((z) => (z.onclick = () => { sfx.click(); soloRun(z.dataset.t, level); }));
 }
 
-async function soloRun(topic) {
+async function soloRun(topic, level) {
   let qs;
-  try { qs = await (await fetch('/api/solo?n=10&topic=' + encodeURIComponent(topic))).json(); } catch { return toast('Could not load questions', true); }
-  S = { mode: 'solo', topic, qs, i: 0, score: 0, correct: 0, streak: 0, bestStreak: 0, xp: 0, fifty: 2, skip: 1, wrongTopics: {} };
+  try { qs = await (await fetch('/api/solo?n=10&topic=' + encodeURIComponent(topic) + '&level=' + level)).json(); } catch { return toast('Could not load questions', true); }
+  if (!qs.length) return toast('No questions here yet', true);
+  S = { mode: 'solo', topic, level, log: [], qs, i: 0, score: 0, correct: 0, streak: 0, bestStreak: 0, xp: 0, fifty: 2, skip: 1, wrongTopics: {} };
   soloQ();
 }
 function soloQ() {
@@ -393,12 +450,12 @@ function soloQ() {
       <div class="panel cut mid"><span class="rd">QUESTION</span><span class="tm" style="font-size:28px">${S.i + 1}<span class="dim" style="font-size:15px">/${S.qs.length}</span></span></div>
     </div>
     <div class="timebar"><i style="transform:scaleX(${S.i / S.qs.length});background:linear-gradient(90deg,var(--cyan),var(--pink))"></i></div>
-    <div class="panel cut edge qcard"><div class="qtopic">${zn[0]} ${esc(zn[1].toUpperCase())}</div>${questionHTML(q.text)}</div>
+    <div class="panel cut edge qcard"><div class="qtopic">${zn[0]} ${esc(zn[1].toUpperCase())}${lvBadge(q.level)}</div>${questionHTML(q.text)}</div>
     ${optionsHTML(q.options)}
     <div class="tools"><div class="row"><button class="chip" id="f50" ${S.fifty ? '' : 'disabled'}>✂ 50/50 ×${S.fifty}</button></div><button class="back" id="quit">Quit run</button></div>
     <div id="fb"></div>`);
   app.querySelectorAll('.opt').forEach((b) => (b.onclick = () => soloAnswer(Number(b.dataset.i))));
-  $('#quit').onclick = () => { if (confirm('Leave this run? Progress for this run is lost.')) zones(); };
+  $('#quit').onclick = () => { if (confirm('Leave this run? Progress for this run is lost.')) zones(S.level); };
   $('#f50').onclick = () => {
     if (S.locked || !S.fifty) return; S.fifty--; sfx.click();
     const wrong = [0, 1, 2, 3].filter((k) => k !== q.answer).sort(() => Math.random() - .5).slice(0, 2);
@@ -411,9 +468,9 @@ function soloAnswer(c) {
   const q = S.qs[S.i], ok = c === q.answer;
   app.querySelectorAll('.opt').forEach((b) => { b.disabled = true; const k = Number(b.dataset.i); if (k === q.answer) b.classList.add('right'); else if (k === c) b.classList.add('wrong'); });
   let gain = 0;
-  if (ok) { S.streak++; S.bestStreak = Math.max(S.bestStreak, S.streak); gain = 10 + Math.min(S.streak - 1, 5) * 2; S.xp += gain; S.score += 100 + (S.streak - 1) * 10; S.correct++; sfx.right(); buzz(30); }
+  if (ok) { S.streak++; S.bestStreak = Math.max(S.bestStreak, S.streak); gain = ({ easy: 10, moderate: 15, hard: 20 }[q.level] || 10) + Math.min(S.streak - 1, 5) * 2; S.xp += gain; S.score += ({ easy: 100, moderate: 120, hard: 150 }[q.level] || 100) + (S.streak - 1) * 10; S.correct++; sfx.right(); buzz(30); }
   else { S.streak = 0; S.wrongTopics[q.topic] = (S.wrongTopics[q.topic] || 0) + 1; sfx.wrong(); buzz([60, 40, 60]); $('.qcard').classList.add('shake'); }
-  record(q.topic, ok);
+  record(q.topic, ok); S.log.push({ q, yours: c });
   $('#sc').textContent = S.score; $('#stk').textContent = S.streak > 1 ? '🔥 STREAK x' + S.streak : 'XP +' + S.xp; $('#stk').className = 'st ' + (S.streak > 1 ? 'on' : '');
   const last = S.i === S.qs.length - 1;
   $('#fb').innerHTML = `<div class="panel cut explain ${ok ? '' : 'bad'}"><div class="hd ${ok ? 'g' : 'r'}">${ok ? 'CORRECT +' + gain + ' XP' : 'NOT QUITE'}</div><p>${esc(q.explain)}</p></div>
@@ -429,7 +486,7 @@ function soloDone() {
   const weak = Object.entries(S.wrongTopics).sort((a, b) => b[1] - a[1]).map(([t, n]) => `<span class="pill">${(TOPICS_UI[t] || [''])[0]} ${esc((TOPICS_UI[t] || ['', t])[1])} · ${n} missed</span>`).join('');
   const verdict = acc === 100 ? 'FLAWLESS' : acc >= 80 ? 'SHARP' : acc >= 50 ? 'WARMING UP' : 'KEEP TRAINING';
   setScreen(`
-    <div class="banner ${acc >= 50 ? 'win' : 'draw'}"><div class="dim disp small" style="letter-spacing:.4em;margin-bottom:8px">RUN COMPLETE</div><h2>${verdict}</h2></div>
+    <div class="banner ${acc >= 50 ? 'win' : 'draw'}"><div class="dim disp small" style="letter-spacing:.4em;margin-bottom:8px">RUN COMPLETE ${lvBadge(S.level)}</div><h2>${verdict}</h2></div>
     <div class="stats">
       <div class="panel cut stat"><div class="v">${S.correct}/${S.qs.length}</div><div class="l">CORRECT</div></div>
       <div class="panel cut stat"><div class="v">${acc}%</div><div class="l">ACCURACY</div></div>
@@ -438,12 +495,13 @@ function soloDone() {
     </div>
     ${profileHTML()}
     ${after.i > before.i ? `<div class="panel cut edge center" style="border:1px solid var(--amber)"><div class="rankname">RANK UP!</div><h3>You are now ${esc(after.name)}</h3></div>` : ''}
-    ${weak ? `<div><label class="lbl">Review these zones</label><div class="weak">${weak}</div></div>` : ''}
+    ${weak ? `<div><label class="lbl">Weak zones</label><div class="weak">${weak}</div></div>` : ''}
+    ${reviewHTML(S.log)}
     <div class="row center"><button class="btn" id="again">Run it again</button><button class="btn ghost" id="zn">Zones</button><button class="btn pink" id="hm">Challenge a friend</button></div>
     ${footHTML}`);
   sfx.win();
-  $('#again').onclick = () => { sfx.click(); soloRun(S.topic); };
-  $('#zn').onclick = () => { sfx.click(); zones(); };
+  $('#again').onclick = () => { sfx.click(); soloRun(S.topic, S.level); };
+  $('#zn').onclick = () => { sfx.click(); zones(S.level); };
   $('#hm').onclick = () => { sfx.click(); home(); };
 }
 
@@ -493,10 +551,12 @@ function lobby() {
     <div class="center"><div class="lbl" style="margin:0">ROOM CODE</div><div class="roomcode">${esc(r.code)}</div></div>
     <div class="vs">${slot(meP, 'p1')}<div class="vsmark">VS</div>${slot(opp, 'p2')}</div>
     <div class="panel cut edge"><label class="lbl">Invite your rival</label><div class="linkbox"><input type="text" readonly value="${esc(link)}" id="lk"><button class="btn pink" id="cp">Copy link</button>${navigator.share ? '<button class="btn ghost" id="sh">Share</button>' : ''}</div></div>
+    <div class="center"><label class="lbl">Difficulty ${host ? '' : '(host picks)'}</label><div class="chips">${['easy', 'moderate', 'hard', 'mixed'].map((l) => `<button class="chip lv ${r.level === l ? 'on' : ''}" data-l="${l}" style="--c:${LEVEL_UI[l][1]}" ${host ? '' : 'disabled'}>${LEVEL_UI[l][0]}</button>`).join('')}</div></div>
     <div class="row center">${host ? `<button class="btn amber" id="st" ${opp ? '' : 'disabled'} style="min-width:240px">${opp ? 'Start battle' : 'Waiting for opponent'}</button>` : '<div class="dim disp small">WAITING FOR HOST TO START…</div>'}</div>
-    <div class="center dim small">10 questions · 15 seconds each · faster correct answers score more · streaks add bonus points</div>${footHTML}`);
+    <div class="center dim small">10 questions · 15 seconds each · faster answers and harder questions score more · streaks add bonus points · full review after the battle</div>${footHTML}`);
   $('#lv').onclick = () => { sendWS({ t: 'leave' }); history.replaceState(null, '', '/'); home(); };
   $('#cp').onclick = async () => { try { await navigator.clipboard.writeText(link); } catch { $('#lk').select(); document.execCommand('copy'); } toast('Invite link copied'); sfx.click(); };
+  app.querySelectorAll('.chip.lv').forEach((b) => (b.onclick = () => { if (host) { sfx.click(); sendWS({ t: 'level', level: b.dataset.l }); } }));
   if ($('#sh')) $('#sh').onclick = () => navigator.share({ title: 'CS Arena battle', text: 'Join my DBMS battle on CS Arena!', url: link }).catch(() => {});
   if ($('#st')) $('#st').onclick = () => { sfx.click(); sendWS({ t: 'start' }); };
 }
@@ -527,7 +587,7 @@ function question(m) {
       ${hudCard('opp', S.names[opp ? opp.id : ''] || 'Rival', S.opp, 'THINKING…')}
     </div>
     <div class="timebar"><i id="tb" style="transform:scaleX(1)"></i></div>
-    <div class="panel cut edge qcard"><div class="qtopic">${zn[0]} ${esc(zn[1].toUpperCase())}</div>${questionHTML(m.text)}</div>
+    <div class="panel cut edge qcard"><div class="qtopic">${zn[0]} ${esc(zn[1].toUpperCase())}${lvBadge(m.level)}</div>${questionHTML(m.text)}</div>
     ${optionsHTML(m.options)}
     <div id="fb"></div>`);
   app.querySelectorAll('.opt').forEach((b) => (b.onclick = () => battleAnswer(Number(b.dataset.i))));
@@ -577,13 +637,14 @@ function overScreen(m) {
   const myWins = (m.wins.find((w) => w.id === S.me) || {}).wins || 0, theirWins = (m.wins.find((w) => w.id !== S.me) || {}).wins || 0;
   const row = (s, i) => `<div class="panel cut stand ${i === 0 && m.winner ? 'first' : ''}"><span class="pos">${i + 1}</span><span class="nm">${esc(s.name)}${s.id === S.me ? ' (YOU)' : ''}<div class="small dim" style="letter-spacing:.05em;font-family:var(--body)">${s.correct}/${m.total} correct</div></span><span class="pt">${s.score}</span></div>`;
   setScreen(`
-    <div class="banner ${res}"><div class="dim disp small" style="letter-spacing:.4em;margin-bottom:8px">BATTLE OVER</div><h2>${res === 'win' ? 'VICTORY' : res === 'lose' ? 'DEFEAT' : 'DRAW'}</h2></div>
+    <div class="banner ${res}"><div class="dim disp small" style="letter-spacing:.4em;margin-bottom:8px">BATTLE OVER ${lvBadge(m.level)}</div><h2>${res === 'win' ? 'VICTORY' : res === 'lose' ? 'DEFEAT' : 'DRAW'}</h2></div>
     <div style="display:flex;flex-direction:column;gap:10px">${m.standings.map(row).join('')}</div>
     <div class="stats">
       <div class="panel cut stat"><div class="v" style="color:var(--lime)">+${xp}</div><div class="l">XP EARNED</div></div>
       <div class="panel cut stat"><div class="v">${myWins}–${theirWins}</div><div class="l">SESSION SCORE</div></div>
       <div class="panel cut stat"><div class="v">${rankOf(P.xp).name.split(' ')[0]}</div><div class="l">${after.i > before.i ? 'RANK UP!' : 'YOUR RANK'}</div></div>
     </div>
+    ${reviewHTML((m.review || []).map((r) => ({ q: r, yours: r.choices[S.me] })))}
     <div class="row center"><button class="btn amber" id="rm">Rematch</button><button class="btn ghost" id="hm">Leave arena</button></div>${footHTML}`);
   store.save();
   res === 'win' ? sfx.win() : res === 'lose' ? sfx.lose() : sfx.click();
