@@ -1,0 +1,10 @@
+{
+  "name": "cs-arena",
+  "version": "1.0.0",
+  "description": "CS Arena & Academy: play-and-learn arena for CS students. DBMS first.",
+  "main": "server.js",
+  "scripts": { "start": "node server.js", "test": "node battle.test.js" },
+  "engines": { "node": ">=18" },
+  "dependencies": { "ws": "^8.18.0" },
+  "license": "MIT"
+}
