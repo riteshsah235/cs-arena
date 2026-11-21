@@ -653,6 +653,33 @@ function overScreen(m) {
 }
 
 /* ============================================================ boot */
+
+// ---- browser/phone Back button: step back one screen instead of leaving the app
+let cur = 'home';
+['home','joinScreen','levelScreen','zones','soloQ','soloDone','lobby','ready','question','revealRound','overScreen'].forEach((n) => {
+  const f = window[n]; if (typeof f !== 'function') return;
+  window[n] = function () { cur = n; return f.apply(this, arguments); };
+});
+const leaveBattle = () => { sendWS({ t: 'leave' }); closeSock(); history.replaceState(null, '', '/'); home(); };
+function backAction() {
+  switch (cur) {
+    case 'levelScreen': home(); break;
+    case 'zones': levelScreen(); break;
+    case 'joinScreen': history.replaceState(null, '', '/'); home(); break;
+    case 'soloQ': if (confirm('Leave this run? Progress for this run is lost.')) zones(S.level); break;
+    case 'soloDone': zones(S.level); break;
+    case 'lobby': case 'ready': case 'question': case 'revealRound':
+      if (confirm('Leave this battle?')) leaveBattle(); break;
+    case 'overScreen': leaveBattle(); break;
+  }
+}
+history.replaceState({ g: 0 }, '');
+history.pushState({ g: 1 }, '');
+window.addEventListener('popstate', () => {
+  if (cur === 'home') { history.back(); return; }   // already on home: let Back leave the app
+  history.pushState({ g: 1 }, '');                  // keep the guard entry for the next Back
+  backAction();
+});
 const room = new URLSearchParams(location.search).get('room');
 home(room ? room.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 5) : '');
 </script>
