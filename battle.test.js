@@ -27,8 +27,9 @@ function client(port) {
   const port = server.address().port;
   const a = await client(port), b = await client(port);
   const ida = (await a.until((m) => m.t === 'hello')).id, idb = (await b.until((m) => m.t === 'hello')).id;
-  a.send({ t: 'create', name: 'Alice' });
+  a.send({ t: 'create', name: 'Alice', level: 'hard' });
   const lob = await a.until((m) => m.t === 'lobby');
+  assert.strictEqual(lob.level, 'hard');
   b.send({ t: 'join', name: 'Bob', code: lob.code.toLowerCase() });
   await b.until((m) => m.t === 'lobby' && m.players.length === 2);
   // third player rejected
@@ -52,6 +53,8 @@ function client(port) {
     }
   }
   const over = await a.until((m) => m.t === 'over');
+  assert.strictEqual(over.review.length, 4);
+  assert(over.review.every((r) => r.level === 'hard' && r.explain && r.options.length === 4));
   assert.strictEqual(over.standings.length, 2);
   a.send({ t: 'rematch' }); b.send({ t: 'rematch' });
   await a.until((m) => m.t === 'get_ready' && a.log.filter((x) => x.t === 'get_ready').length === 2 || a.log.filter((x) => x.t === 'get_ready').length === 2);
