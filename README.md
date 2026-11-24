@@ -6,7 +6,7 @@ A play-and-learn arena for CS students. **Season 1: DBMS**, with **186 questions
 
 - **Pick a difficulty**: Easy (68), Moderate (72), Hard (46) or Mixed (30% easy, 40% moderate, 30% hard).
 - **Solo Academy**: choose a difficulty, then a training zone (or the Gauntlet). Instant feedback with an explanation after every answer, two 50/50 power-ups, XP, ranks (Rookie to ACID Legend) and per-zone mastery saved in your browser. At the end you get a **Review & learn** list: missed questions first, with your answer, the correct answer and why.
-- **1v1 Battles**: create a room, share the invite link or 5-letter code, the host picks the difficulty and starts. Both players get the same 10 timed questions. The server picks questions, hides answers, times each round and scores everything, so nobody can cheat from the browser. Winner screen, session score, instant rematch and the same **Review & learn** list after the battle.
+- **1v1 Battles**: create a room, share the invite link or 5-letter code, the host picks the difficulty and starts. Both players get the same 10 timed questions. The server picks questions, times rounds and calculates scores. This is a casual learning game, not a cheat-proof competition: the question bank and solo-practice answers are available to players. Winner screen, session score, instant rematch and the same **Review & learn** list after the battle.
 - Mobile friendly. No accounts, only a gamer tag.
 
 ## DBMS zones (11)
