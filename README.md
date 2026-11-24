@@ -1,5 +1,7 @@
 # CS Arena & Academy
 
+Play the live DBMS arena: https://cs-arena-kz30.onrender.com/
+
 A play-and-learn arena for CS students. **Season 1: DBMS**, with **186 questions** in three difficulty levels. Every question has an explanation.
 
 - **Pick a difficulty**: Easy (68), Moderate (72), Hard (46) or Mixed (30% easy, 40% moderate, 30% hard).
