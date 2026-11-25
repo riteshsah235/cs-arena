@@ -72,8 +72,8 @@
 | DSA | Big-O Blitz |
 | Operating Systems | Scheduler Showdown |
 | Computer Networks | Subnet Sniper |
-| Machine Learning | Metric Master |
-| System Design | Capacity Planner |
+| Machine Learning | 102 | 187 | 117 | 406 | Live, growing |
+| System Design | 45 | 131 | 40 | 216 | Live, early |
 
 ---
 
@@ -86,9 +86,9 @@ Counts are distinct static questions per level (the generated drills are not inc
 | DBMS | 303 | 303 | 301 | 907 | Live |
 | DSA | 309 | 301 | 300 | 910 | Live |
 | Operating Systems | 301 | 318 | 301 | 920 | Live |
-| Computer Networks | 201 | 252 | 189 | 642 | Live, growing |
-| Machine Learning | 103 | 189 | 117 | 409 | Live, growing |
-| System Design | 53 | 131 | 45 | 229 | Live, early |
+| Computer Networks | 200 | 252 | 189 | 641 | Live, growing |
+| Machine Learning | 102 | 187 | 117 | 406 | Live, growing |
+| System Design | 45 | 131 | 40 | 216 | Live, early |
 
 Each question has four options, one correct answer and an explanation. Easy covers definitions and basics, Moderate covers applied concepts and Hard covers multi step reasoning and edge cases. Live counts are served at `/api/subjects`.
 
