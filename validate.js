@@ -29,6 +29,20 @@ for (const s of Object.values(SUBJECTS)) {
   rows.push({ id: s.id, ...c, total: s.bank.length, need: Math.max(0, TARGET - c.easy) + Math.max(0, TARGET - c.moderate) + Math.max(0, TARGET - c.hard) });
   if (process.env.TOPICS) console.log(s.id, JSON.stringify(byTopic));
 }
+
+let reviews = 0; // pairs to review by hand: set REVIEW=1 to list them
+// Concept-duplicate pass (any answer, any level): near-identical stems whose numbers/symbols match are the same question reworded.
+// Added after an independent audit found paraphrased duplicates across levels that the same-answer check missed.
+for (const s of Object.values(SUBJECTS)) {
+  const stop = new Set(['the','what','which','does','that','this','with','for','and','are','how','many','has','have','its','from','into','than']);
+  const T = s.bank.map((q) => { const w = String(q.text).toLowerCase().replace(/[^a-z0-9]+/g, ' ').split(' ').filter((x) => x && !stop.has(x)); return { w: new Set(w), n: new Set(w.filter((x) => /^[0-9]+$/.test(x))), len: w.length }; });
+  for (let i = 0; i < T.length; i++) for (let j = i + 1; j < T.length; j++) {
+    const a = T[i], b = T[j]; if (Math.abs(a.len - b.len) > 4) continue;
+    if (a.n.size !== b.n.size || [...a.n].some((x) => !b.n.has(x))) continue;
+    if (jac(a.w, b.w) >= 0.75) { reviews++; if (process.env.REVIEW) console.log('  REVIEW', s.id + '#' + i + ' [' + s.bank[i].level + '] ' + s.bank[i].text.slice(0, 80) + '  ||  #' + j + ' [' + s.bank[j].level + '] ' + s.bank[j].text.slice(0, 80)); }
+  }
+}
+console.log('concept-duplicate candidates to review by hand (REVIEW=1 lists them):', reviews);
 console.log('subject    easy  mod  hard  total  still-needed-for-' + TARGET + '/level');
 let tot = 0, need = 0;
 for (const r of rows) { tot += r.total; need += r.need; console.log(r.id.padEnd(10), String(r.easy).padStart(4), String(r.moderate).padStart(4), String(r.hard).padStart(5), String(r.total).padStart(6), String(r.need).padStart(8)); }
