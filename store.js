@@ -24,6 +24,7 @@ const memBackend = {
     return { ...p };
   },
   async applyResult(m) {
+    if (mem.matches.some((x) => x.key === m.key)) return;
     for (const s of m.sides) {
       const p = mem.players.get(s.uid); if (!p) continue;
       p.rating += s.delta; p.games++; p.peak = Math.max(p.peak, p.rating);
@@ -61,13 +62,18 @@ function neon(connStr) {
       return row((await q('SELECT * FROM players WHERE uid=$1', [uid]))[0]);
     },
     async applyResult(m) {
-      // match_key is unique, so a retried write cannot double-apply Elo.
+      // One SQL statement: the match row and both rating updates commit together or not at all.
+      // match_key is unique, so a retried or concurrent duplicate write inserts nothing and changes no rating.
       const [a, b] = m.sides;
-      const ins = await q('INSERT INTO matches (match_key, subject, level, uid_a, uid_b, score_a, score_b, result_a, delta_a, delta_b) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) ON CONFLICT (match_key) DO NOTHING RETURNING id', [m.key, m.subject, m.level, a.uid, b.uid, a.score, b.score, a.result, a.delta, b.delta]);
-      if (!ins.length) return;
-      for (const s of m.sides) {
-        await q('UPDATE players SET rating = rating + $2, games = games + 1, wins = wins + $3, losses = losses + $4, peak = GREATEST(peak, rating + $2), updated = now() WHERE uid=$1', [s.uid, s.delta, s.result === 'win' ? 1 : 0, s.result === 'loss' ? 1 : 0]);
-      }
+      await q(`WITH ins AS (
+          INSERT INTO matches (match_key, subject, level, uid_a, uid_b, score_a, score_b, result_a, delta_a, delta_b)
+          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) ON CONFLICT (match_key) DO NOTHING RETURNING id)
+        UPDATE players p SET rating = p.rating + v.d, games = p.games + 1,
+          wins = p.wins + (v.r = 'win')::int, losses = p.losses + (v.r = 'loss')::int,
+          peak = GREATEST(p.peak, p.rating + v.d), updated = now()
+        FROM (VALUES ($4::text, $9::int, $11::text), ($5::text, $10::int, $12::text)) AS v(u, d, r)
+        WHERE p.uid = v.u AND EXISTS (SELECT 1 FROM ins)`,
+        [m.key, m.subject, m.level, a.uid, b.uid, a.score, b.score, a.result, a.delta, b.delta, a.result, b.result]);
     },
     async top(n) { return (await q('SELECT * FROM players WHERE games > 0 ORDER BY rating DESC LIMIT $1', [n])).map(row); },
     async ping() { await q('SELECT 1'); return true; },
