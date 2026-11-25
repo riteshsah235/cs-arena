@@ -241,6 +241,12 @@ function removePlayer(ws) {
 function makeRoom(kind, max, subject, mode, level, host) {
   return { code: newCode(), kind, max, subject, mode, level, hist: [], players: [], host, state: 'lobby', timer: null, qs: [], qi: -1, answers: new Map(), rematch: new Set(), used: new Set(), qStart: 0, matchKey: null };
 }
+const pendingUids = new Set();
+function uidBusy(uid) {
+  if (pendingUids.has(uid) || queue.some((e) => e.uid === uid)) return true;
+  for (const r of rooms.values()) if (r.kind === 'ranked' && r.state !== 'over' && r.rank && Object.values(r.rank).some((x) => x.uid === uid)) return true;
+  return false;
+}
 function tryMatch() {
   const now = Date.now();
   queue.sort((x, y) => x.since - y.since);
@@ -355,12 +361,15 @@ wss.on('connection', (ws) => {
         if (!uid || !subject || !SUBJECTS[subject].ready) return send(ws, { t: 'rank_err', msg: 'Pick a subject that has a question bank for ranked.' });
         const level = LEVELS[m.level] || m.level === 'mixed' ? m.level : 'mixed';
         ws.name = cleanName(m.name);
+        if (uidBusy(uid)) return send(ws, { t: 'rank_err', msg: 'This ranked profile is already searching or playing in another tab. Finish or close that one first.' });
+        pendingUids.add(uid);
         ensureDb().then(() => ladder.ensurePlayer(uid, ws.name)).then((pl) => {
+          pendingUids.delete(uid);
           if (ws.readyState !== 1 || ws.room || queue.some((e) => e.ws === ws)) return;
           queue.push({ ws, uid, name: ws.name, subject, level, rating: pl.rating, since: Date.now() });
           send(ws, { t: 'rq_wait', rating: pl.rating, tier: store.tierOf(pl.rating), games: pl.games, durable: store.durable });
           tryMatch();
-        }).catch(() => send(ws, { t: 'rank_err', offline: true, msg: 'Ranked is offline: the ladder database is unreachable, so ratings would not be saved. You can still play unrated.' }));
+        }).catch(() => { pendingUids.delete(uid); send(ws, { t: 'rank_err', offline: true, msg: 'Ranked is offline: the ladder database is unreachable, so ratings would not be saved. You can still play unrated.' }); });
         return;
       }
       case 'rq_cancel': dropFromQueue(ws); return send(ws, { t: 'rq_cancelled' });
