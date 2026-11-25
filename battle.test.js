@@ -60,6 +60,30 @@ function client(port) {
   await a.until((m) => m.t === 'get_ready' && a.log.filter((x) => x.t === 'get_ready').length === 2 || a.log.filter((x) => x.t === 'get_ready').length === 2);
   b.ws.close();
   await a.until((m) => m.t === 'opp_left');
+  // --- scenario 2: 4-player room battle on an OS drill, one player leaves mid-round, survivors rematch ---
+  const P = []; for (let k = 0; k < 4; k++) P.push(await client(port));
+  for (const p of P) await p.until((m) => m.t === 'hello');
+  P[0].send({ t: 'create', name: 'P0', kind: 'room', subject: 'os', mode: 'drill', level: 'easy' });
+  const lb2 = await P[0].until((m) => m.t === 'lobby');
+  assert.strictEqual(lb2.kind, 'room'); assert.strictEqual(lb2.max, 8);
+  for (let k = 1; k < 4; k++) P[k].send({ t: 'join', name: 'P' + k, code: lb2.code });
+  await P[3].until((m) => m.t === 'lobby' && m.players.length === 4);
+  P[0].send({ t: 'start' });
+  const q0 = await P[1].until((m) => m.t === 'q' && m.i === 0);
+  assert(!('answer' in q0) && q0.options.length === 4, 'drill question must not leak answer');
+  P[3].ws.close(); // leaver mid-round
+  await P[0].until((m) => m.t === 'player_left');
+  for (let i = 0; i < 4; i++) {
+    await P[0].until((m) => m.t === 'q' && m.i === i);
+    for (let k = 0; k < 3; k++) P[k].send({ t: 'ans', i, c: k });
+    await P[0].until((m) => m.t === 'reveal' && m.i === i);
+  }
+  const over2 = await P[0].until((m) => m.t === 'over');
+  assert.strictEqual(over2.standings.length, 3, 'leaver dropped from standings');
+  assert(over2.review.every((r) => r.explain && r.explain.length > 10));
+  for (let k = 0; k < 3; k++) P[k].send({ t: 'rematch' });
+  await P[0].until((m) => m.t === 'get_ready' && P[0].log.filter((x) => x.t === 'get_ready').length === 2);
+  console.log('room battle test passed: standings', JSON.stringify(over2.standings.map((s) => [s.name, s.score])));
   console.log('battle test passed: scores', JSON.stringify(over.standings.map((s) => [s.name, s.score])));
   process.exit(0);
 })().catch((e) => { console.error('FAIL', e); process.exit(1); });
