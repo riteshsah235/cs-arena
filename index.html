@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#05060f">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Crect width=%27100%27 height=%27100%27 fill=%27%2305060f%27/%3E%3Cpath d=%27M50 8 90 30v40L50 92 10 70V30z%27 fill=%27none%27 stroke=%27%2319e6ff%27 stroke-width=%278%27/%3E%3Ccircle cx=%2750%27 cy=%2750%27 r=%2712%27 fill=%27%23ff2bd6%27/%3E%3C/svg%3E">
 <title>CS Arena &amp; Academy</title>
-<meta name="description" content="CS Arena & Academy: learn core computer science subjects, play generated mini-games and battle friends live.">
+<meta name="description" content="CS Arena & Academy: learn core computer science subjects, play practice mini-games and battle friends live.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -578,7 +578,7 @@ async function landing() {
       <div>
         <div class="eyebrow">CS ARENA &amp; ACADEMY</div>
         <h1>Learn computer science. <em>Then prove it in the arena.</em></h1>
-        <p class="lead">Six core subjects, each with its own arena: explained practice, generated mini-games, then take on friends in timed 1v1 duels and room battles.</p>
+        <p class="lead">Six core subjects, each with its own arena: explained practice, practice mini-games, then take on friends in timed 1v1 duels and room battles.</p>
         <div class="ctas"><a class="btn" href="/#subjects" data-nav>Choose a subject</a><a class="btn ghost" href="/#modes" data-nav>See game modes</a></div>
         <div class="joinrow"><input type="text" id="jc" maxlength="5" placeholder="CODE" autocomplete="off" autocapitalize="characters" spellcheck="false"><button class="btn amber" id="jg">Join battle</button></div>
         <div class="trust"><span>Free to play</span><span>No sign-up</span><span>Works on phone</span></div>
@@ -633,7 +633,7 @@ async function subjectPage(id) {
     <section class="sec"><header><div class="eyebrow" style="color:${s.color}">PLAY</div><h2>Pick a mode</h2></header>
       <div class="mgrid">
         <button class="mcard" id="m-acad" ${s.ready ? '' : 'disabled'}><div class="panel cut edge"><div class="mi">${uIcon('book')}</div><h3>Solo Academy</h3><p>Train in a zone with explanations, 50/50 power-ups and XP.</p><div class="tag">${s.ready ? 'CHOOSE A ZONE BELOW' : 'BANK COMING'}</div></div></button>
-        <button class="mcard" id="m-mini" style="--mc:var(--lime)"><div class="panel cut edge"><div class="mi">${uIcon('pad')}</div><h3>${esc(s.drill.name)}</h3><p>Generated mini-game. Fresh numbers every question.</p><div class="tag">START MINI-GAME</div></div></button>
+        <button class="mcard" id="m-mini" style="--mc:var(--lime)"><div class="panel cut edge"><div class="mi">${uIcon('pad')}</div><h3>${esc(s.drill.name)}</h3><p>Practice mini-game with explained answers.</p><div class="tag">START MINI-GAME</div></div></button>
         <button class="mcard" id="m-duel" style="--mc:var(--pink)" ${s.ready ? '' : 'data-nobank="1"'}><div class="panel cut edge"><div class="mi">${uIcon('duel')}</div><h3>1v1 Duel</h3><p>Open a room, share the link, race a friend on 10 questions.</p><div class="tag">CREATE ROOM</div></div></button>
         <button class="mcard" id="m-room" style="--mc:var(--amber)" ${s.ready ? '' : 'data-nobank="1"'}><div class="panel cut edge"><div class="mi">${uIcon('users')}</div><h3>Room Battle</h3><p>Up to 8 players, one live scoreboard.</p><div class="tag">CREATE ROOM</div></div></button>
       </div></section>
