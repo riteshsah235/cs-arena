@@ -5,6 +5,5 @@
   "main": "server.js",
   "scripts": { "start": "node server.js", "test": "node tests/battle.test.js && node tests/store.test.js", "validate": "node scripts/validate.js" },
   "engines": { "node": ">=18" },
-  "dependencies": { "ws": "^8.18.0" },
-  "license": "MIT"
+  "dependencies": { "ws": "^8.18.0" }
 }
