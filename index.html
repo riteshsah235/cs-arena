@@ -949,13 +949,13 @@ function overScreen(m) {
   setScreen(`
     <div class="banner ${res}"><div class="dim disp small" style="letter-spacing:.4em;margin-bottom:8px">${esc(sb.name.toUpperCase())} BATTLE OVER ${lvBadge(m.level)}</div><h2>${res === 'win' ? 'VICTORY' : res === 'lose' ? (m.standings.length > 2 ? 'PLACE #' + place : 'DEFEAT') : 'DRAW'}</h2></div>
     <div style="display:flex;flex-direction:column;gap:10px">${m.standings.map(row).join('')}</div>
+    ${rankCard}
     <div class="stats">
       <div class="panel cut stat"><div class="v" style="color:var(--lime)">+${xp}</div><div class="l">XP EARNED</div></div>
       <div class="panel cut stat"><div class="v">${myWins}</div><div class="l">WINS IN THIS ROOM</div></div>
       <div class="panel cut stat"><div class="v">${rankOf(P.xp).name.split(' ')[0]}</div><div class="l">${after.i > before.i ? 'RANK UP!' : 'YOUR RANK'}</div></div>
     </div>
     ${reviewHTML((m.review || []).map((r) => ({ q: r, yours: r.choices[S.me] })))}
-    ${rankCard}
     <div class="row center">${m.kind === 'ranked' ? '<button class="btn amber" id="rm">Back to ladder</button>' : '<button class="btn amber" id="rm">Rematch</button>'}<button class="btn ghost" id="hm">Leave arena</button></div>${footHTML}`);
   store.save();
   res === 'win' ? sfx.win() : res === 'lose' ? sfx.lose() : sfx.click();
