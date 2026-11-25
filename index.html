@@ -627,7 +627,7 @@ async function subjectPage(id) {
     </section>
     ${s.ready ? '' : `<div class="notice">The ${esc(s.name)} question bank is still being written. The mini-game is live now, and zones and quiz battles open when the bank lands.</div>`}
     <div class="ctrl">
-      <div class="panel cut edge"><label class="lbl" for="nick">Your gamer tag</label><input type="text" id="nick" maxlength="16" placeholder="e.g. NullPointer" value="${esc(P.name)}" autocomplete="off" autocapitalize="off" spellcheck="false"></div>
+      <div class="panel cut edge"><label class="lbl" for="nick">Your gamer tag</label><input type="text" id="nick" maxlength="16" placeholder="e.g. NullPointer" value="${esc(P.name)}" autocomplete="off" autocapitalize="off" spellcheck="false"><div class="small dim" style="margin-top:8px">Pick a nickname. Other players can see it, so do not use your real name, phone number or email.</div></div>
       <div class="panel cut edge"><label class="lbl">Difficulty</label><div class="lvrow" id="lvrow">${['easy', 'moderate', 'hard', 'mixed'].map((l) => `<button class="chip lv ${lvl === l ? 'on' : ''}" data-l="${l}" style="--c:${LEVEL_UI[l][1]}">${LEVEL_UI[l][0]}</button>`).join('')}</div><div class="small dim" id="lvhint">${LEVEL_UI[lvl][2]}</div></div>
     </div>
     <section class="sec"><header><div class="eyebrow" style="color:${s.color}">PLAY</div><h2>Pick a mode</h2></header>
@@ -675,7 +675,7 @@ function joinScreen(code) {
     ${navHTML()}
     <div class="panel cut edge" style="max-width:520px;width:100%;margin:20px auto;display:flex;flex-direction:column;gap:16px">
       <h3 style="font-size:20px">Enter the arena</h3>
-      <div><label class="lbl" for="nick2">Your gamer tag</label><input type="text" id="nick2" maxlength="16" value="${esc(P.name)}" placeholder="e.g. NullPointer" autocomplete="off" autocapitalize="off" spellcheck="false"></div>
+      <div><label class="lbl" for="nick2">Your gamer tag</label><input type="text" id="nick2" maxlength="16" value="${esc(P.name)}" placeholder="e.g. NullPointer" autocomplete="off" autocapitalize="off" spellcheck="false"><div class="small dim" style="margin-top:8px">Pick a nickname. Other players can see it, so do not use your real name, phone number or email.</div></div>
       <div><label class="lbl" for="code">Room code</label><input type="text" id="code" class="code" maxlength="5" placeholder="•••••" value="${esc(code)}" autocomplete="off" autocapitalize="characters" spellcheck="false"></div>
       <button class="btn pink" id="go">Join battle</button>
       <button class="back" id="bk" style="align-self:flex-start">‹ Back</button>
@@ -986,7 +986,7 @@ async function rankedPage(warn) {
     ${warn || offline ? `<div class="panel cut edge" style="border-color:var(--red)"><b style="color:var(--red)">Ranked is offline.</b> <span class="dim">${esc(warn || 'The ladder database is unreachable, so ratings cannot be saved. Play unrated in any subject page for now.')}</span></div>` : ''}
     ${!offline && !ladder.durable ? '<div class="panel cut edge small dim">This ladder is temporary and resets when the server restarts.</div>' : ''}
     <div class="panel cut edge"><div class="lbl">Your rating</div><div class="disp" style="font-size:34px">${me ? me.rating : 1000} <span class="dim" style="font-size:14px">${esc(me ? me.tier : 'Rookie')} · ${me ? me.games : 0} ranked games</span></div><div class="small dim">Your ranked identity is stored in this browser. Clearing site data starts a new profile.</div></div>
-    <div class="panel cut edge"><label class="lbl" for="rnick">Your gamer tag</label><input type="text" id="rnick" maxlength="16" placeholder="e.g. NullPointer" value="${esc(P.name)}" autocomplete="off"></div>
+    <div class="panel cut edge"><label class="lbl" for="rnick">Your gamer tag</label><input type="text" id="rnick" maxlength="16" placeholder="e.g. NullPointer" value="${esc(P.name)}" autocomplete="off"><div class="small dim" style="margin-top:8px">Ranked nicknames appear on the public ladder, visible to anyone. Do not use your real name, phone number or email.</div></div>
     <div class="panel cut edge"><label class="lbl">Subject</label><div class="lvrow" id="rsubs">${ready.map((s) => `<button class="chip lv ${s.id === sel ? 'on' : ''}" data-s="${s.id}" style="--c:${s.color}">${esc(s.name.toUpperCase())}</button>`).join('')}</div>
       <label class="lbl" style="margin-top:12px">Difficulty</label><div class="lvrow" id="rlvs">${['easy', 'moderate', 'hard', 'mixed'].map((l) => `<button class="chip lv ${lvl === l ? 'on' : ''}" data-l="${l}" style="--c:${LEVEL_UI[l][1]}">${LEVEL_UI[l][0]}</button>`).join('')}</div></div>
     <div class="row center"><button class="btn amber" id="rfind" ${offline ? 'disabled' : ''}>Find ranked match</button></div>
