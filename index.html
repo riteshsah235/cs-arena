@@ -380,6 +380,16 @@ pre.code{margin:12px 0 0;padding:14px 16px;background:#050712;border:1px solid v
 .minipanel .mi2{color:var(--lime);font-size:40px}
 .zone .znum{font:700 11px var(--disp);letter-spacing:.24em;color:var(--accent,var(--cyan));filter:none;font-size:11px}
 .zone .ico svg{width:26px;height:26px}
+
+.pfoot{border-top:1px solid var(--line);margin-top:48px;padding:28px 0 14px;font:500 13px var(--ui);color:var(--dim)}
+.pf-top{display:flex;justify-content:space-between;gap:28px;flex-wrap:wrap;align-items:flex-start}
+.pf-logo{font:900 18px var(--disp);letter-spacing:.14em;color:var(--ink)}.pf-logo b{color:var(--cyan)}
+.pf-brand p{margin:8px 0 0}
+.pf-nav{display:flex;flex-wrap:wrap;gap:8px 20px;max-width:520px}
+.pf-nav a{color:var(--dim);text-decoration:none}.pf-nav a:hover{color:var(--cyan)}
+.pf-bot{display:flex;justify-content:space-between;gap:10px 20px;flex-wrap:wrap;margin-top:24px;padding-top:16px;border-top:1px solid var(--line)}
+.pf-bot strong{color:var(--cyan);font-weight:800;letter-spacing:.02em}
+@media(max-width:600px){.pf-top{flex-direction:column}.pf-bot{flex-direction:column}}
 </style>
 </head>
 <body>
@@ -500,7 +510,8 @@ function optionsHTML(opts) {
   return `<div class="opts">` + opts.map((o, i) => `<button class="opt" data-i="${i}"><div class="in"><span class="k">${LET[i]}</span><span class="tx${isMono(o) ? ' mono' : ''}">${esc(o)}</span></div></button>`).join('') + `</div>`;
 }
 const BRAND_SVG = `<svg viewBox="0 0 100 100"><path d="M50 6 92 29v42L50 94 8 71V29z" fill="#05060f" stroke="#19e6ff" stroke-width="6"/><path d="M33 40h34M33 60h34M50 30v40" stroke="#ff2bd6" stroke-width="7" stroke-linecap="round"/></svg>`;
-const footHTML = `<div class="foot">PLAY · LEARN · LEVEL UP</div>`;
+const siteFooter = () => `<footer class="pfoot"><div class="pf-top"><div class="pf-brand"><span class="pf-logo">CS <b>ARENA</b></span><p>Learn it. Test it. Climb the ranks.</p></div><nav class="pf-nav" aria-label="Footer"><a href="/" data-nav>Home</a><a href="/#subjects" data-nav>Subjects</a><a href="/dbms" data-nav>DBMS</a><a href="/dsa" data-nav>DSA</a><a href="/os" data-nav>OS</a><a href="/cn" data-nav>CN</a><a href="/ml" data-nav>ML</a><a href="/sysdesign" data-nav>System Design</a><a href="https://github.com/riteshsah235/cs-arena" target="_blank" rel="noopener">GitHub</a></nav></div><div class="pf-bot"><span>&copy; 2026 All rights reserved.</span><span>Designed &amp; Developed by <strong>Ritesh</strong></span></div></footer>`;
+const footHTML = `${siteFooter()}`;
 let pagePath = '/';                  // URL of the page we return to after a game
 function setScreen(html, cls = '') { app.innerHTML = `<div class="screen ${cls}">${html}</div>`; window.scrollTo(0, 0); document.body.style.removeProperty('--accent'); }
 function setPage(html) { app.innerHTML = `<div class="wrap">${html}</div>`; window.scrollTo(0, 0); }
@@ -591,7 +602,7 @@ async function landing() {
       </div></section>
     <section class="sec" id="how"><header><div class="eyebrow">THE LOOP</div><h2>Learn it, test it, understand your mistakes</h2></header>
       <div class="steps"><div class="panel cut edge step"><span class="num">1</span><h3>Learn</h3><p>Work through a subject zone at your level. Read the why behind every answer.</p></div><div class="panel cut edge step"><span class="num">2</span><h3>Test under pressure</h3><p>Play a mini-game or battle a friend against the clock.</p></div><div class="panel cut edge step"><span class="num">3</span><h3>Review and climb</h3><p>Missed questions come first in your review. Earn XP and rank up as you improve.</p></div></div></section>
-    <footer class="sfoot"><span>CS Arena &amp; Academy · free hosting, so the first load after a quiet spell can take about a minute.</span><a href="https://github.com/riteshsah235/cs-arena" target="_blank" rel="noopener">Source on GitHub</a></footer>`);
+    ${siteFooter()}`);
   wireNav();
   const jc = $('#jc'), jg = $('#jg');
   jc.oninput = () => (jc.value = jc.value.toUpperCase().replace(/[^A-Z0-9]/g, ''));
@@ -627,7 +638,7 @@ async function subjectPage(id) {
       </div></section>
     <section class="panel cut edge minipanel" style="border-left:3px solid var(--lime)"><div class="mi2">${uIcon('pad')}</div><div><h3>Mini-game: ${esc(s.drill.name)}</h3><p>${esc(s.drill.desc)}</p></div><button class="btn" id="m-mini2">Play</button></section>
     ${s.ready ? `<section class="sec" id="zones"><header><div class="eyebrow" style="color:${s.color}">SOLO ACADEMY</div><h2>Training zones</h2><p class="sub">Pick a zone or take the Gauntlet. Ten questions per run, two 50/50 power-ups, explanation after every answer.</p></header><div id="zbox" class="zones compact"></div></section>` : ''}
-    <footer class="sfoot"><span>${esc(s.name)} · CS Arena &amp; Academy</span><a href="/" data-nav>‹ All subjects</a></footer>`);
+    ${siteFooter()}`);
   wireNav();
   const nick = $('#nick');
   const name = () => { const n = nick.value.trim().slice(0, 16) || 'Player'; P.name = nick.value.trim().slice(0, 16); store.save(); return n; };
