@@ -62,7 +62,7 @@
 | **1v1 Battles** | Create a room, share the invite link or 5-letter code, the host picks the difficulty. Both players get the same 10 timed questions |
 | **Ranked ladder** | Elo based 1v1 with a leaderboard and tiers. Rating is written once per finished match |
 | **ByteBot practice** | Play a bot when nobody is around. Bot games are unrated |
-| **Skill drills** | One generated mini-game per subject (see below). Drills are practice and are not counted as questions |
+| **Skill drills** | One practice mini-game per subject (see below). Drills are practice and are not counted as questions |
 | **Review & learn** | After every run or battle: missed questions first, your answer, the correct answer and why |
 
 ### Skill drills
@@ -87,9 +87,9 @@ Counts are distinct static questions per level (the generated drills are not inc
 | DBMS | 303 | 303 | 301 | 907 | Live |
 | DSA | 309 | 301 | 300 | 910 | Live |
 | Operating Systems | 301 | 318 | 301 | 920 | Live |
-| Computer Networks | 206 | 289 | 206 | 701 | Live, growing |
-| Machine Learning | 136 | 296 | 156 | 588 | Live, growing |
-| System Design | 110 | 237 | 68 | 415 | Live, early |
+| Computer Networks | 206 | 287 | 203 | 696 | Live, growing |
+| Machine Learning | 136 | 292 | 151 | 579 | Live, growing |
+| System Design | 110 | 224 | 65 | 399 | Live, early |
 
 Each question has four options, one correct answer and an explanation. Easy covers definitions and basics, Moderate covers applied concepts and Hard covers multi step reasoning and edge cases. Live counts are served at `/api/subjects`.
 
