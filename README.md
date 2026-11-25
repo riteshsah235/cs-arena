@@ -73,7 +73,7 @@
 | Operating Systems | Scheduler Showdown |
 | Computer Networks | Subnet Sniper |
 | Machine Learning | 103 | 213 | 119 | 435 | Live, growing |
-| System Design | 55 | 153 | 46 | 254 | Live, early |
+| System Design | 55 | 159 | 40 | 254 | Live, early |
 
 ---
 
@@ -88,7 +88,7 @@ Counts are distinct static questions per level (the generated drills are not inc
 | Operating Systems | 301 | 318 | 301 | 920 | Live |
 | Computer Networks | 200 | 252 | 189 | 641 | Live, growing |
 | Machine Learning | 103 | 213 | 119 | 435 | Live, growing |
-| System Design | 55 | 153 | 46 | 254 | Live, early |
+| System Design | 55 | 159 | 40 | 254 | Live, early |
 
 Each question has four options, one correct answer and an explanation. Easy covers definitions and basics, Moderate covers applied concepts and Hard covers multi step reasoning and edge cases. Live counts are served at `/api/subjects`.
 
