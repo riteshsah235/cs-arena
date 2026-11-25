@@ -89,7 +89,7 @@ Counts are distinct static questions per level (the generated drills are not inc
 | Operating Systems | 301 | 318 | 301 | 920 | Live |
 | Computer Networks | 223 | 287 | 206 | 716 | Live, growing |
 | Machine Learning | 171 | 293 | 155 | 619 | Live, growing |
-| System Design | 127 | 229 | 67 | 423 | Live, early |
+| System Design | 127 | 228 | 68 | 423 | Live, early |
 
 Each question has four options, one correct answer and an explanation. Easy covers definitions and basics, Moderate covers applied concepts and Hard covers multi step reasoning and edge cases. Live counts are served at `/api/subjects`.
 
