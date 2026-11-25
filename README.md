@@ -87,7 +87,7 @@ Counts are distinct static questions per level (the generated drills are not inc
 | DBMS | 303 | 303 | 301 | 907 | Live |
 | DSA | 309 | 301 | 300 | 910 | Live |
 | Operating Systems | 301 | 318 | 301 | 920 | Live |
-| Computer Networks | 204 | 271 | 193 | 668 | Live, growing |
+| Computer Networks | 205 | 272 | 195 | 672 | Live, growing |
 | Machine Learning | 129 | 270 | 141 | 540 | Live, growing |
 | System Design | 97 | 200 | 57 | 354 | Live, early |
 
