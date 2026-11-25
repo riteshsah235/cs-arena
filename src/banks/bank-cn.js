@@ -183,7 +183,6 @@ const ROWS = [
 ['model','e','Which port does SMTP use for mail transfer?','25','110','143','53','SMTP servers listen on port 25.'],
 ['link','e','What is a MAC address?','A hardware address of a network interface','An IP address','A port number','A domain name','MAC addresses identify NICs on a local network.'],
 ['link','e','How many bits are in a MAC address?','48','32','64','128','A MAC address is 48 bits written as six hex pairs.'],
-['link','e','What does a switch learn to build its forwarding table?','Source MAC addresses of frames','IP routes','DNS names','Port numbers','Switches note which port each source MAC arrives on.'],
 ['link','e','What does a switch do with a frame whose destination MAC is unknown?','Floods it out of all other ports','Drops it','Sends it to the router','Returns it','Unknown unicast frames are flooded.'],
 ['link','e','What is the broadcast MAC address?','FF:FF:FF:FF:FF:FF','00:00:00:00:00:00','01:00:5E:00:00:00','AA:AA:AA:AA:AA:AA','All ones addresses every station on the LAN.'],
 ['link','e','What protocol maps an IP address to a MAC address?','ARP','DNS','DHCP','ICMP','ARP asks who has this IP and receives the MAC.'],
@@ -648,5 +647,8 @@ const ROWS = [
 ['link','m','What is MAC flooding attack on a switch?','Filling the address table so the switch floods traffic to all ports','Cracking encryption','Stealing IPs','Resetting TCP','When the table is full, frames are broadcast and an attacker can sniff them.'],
 ['link','m','Why is jitter harmful to voice calls?','Variable packet delay makes audio choppy unless buffered','It reduces bandwidth','It breaks DNS','It blocks TCP','Real time audio needs steady arrival, so playout buffers add delay to smooth the variation.'],
 ['model','m','Sending 1 GB over a 100 Mbps link takes about how long, ignoring overhead, and which delay dominates?','About 80 seconds, transmission delay','About 80 ms, propagation delay','About 8 seconds, propagation delay','About 800 seconds, queuing delay','8,000 Mb divided by 100 Mbps is 80 s, and for large files the transmission time dwarfs propagation.'],
+['app','h','A server streams a response of unknown length using chunked transfer encoding with chunks of 4 and 6 bytes. Which header is absent, what ends the body, and why can the client still reuse the persistent connection?','Content-Length is absent and a zero length chunk ends the body, so the client knows where the message stops','Content-Length is required and the connection closes at the end','A zero length chunk is invalid and the client waits for a timeout','Transfer-Encoding is absent and the client counts bytes','The zero length chunk marks the exact end of the message, so the next response on the same connection starts cleanly without needing a length up front.'],
+['app','e','Which HTTP method is meant to be safe and not change server state?','GET','POST','DELETE','PUT','GET is defined as a read only retrieval so caches and crawlers can call it freely.'],
+['tcp','e','Which TCP flag asks to close one direction of a connection?','FIN','SYN','ACK','URG','FIN means the sender has no more data to send.'],
 ];
 module.exports = { TOPICS, ROWS };
