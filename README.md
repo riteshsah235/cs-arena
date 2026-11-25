@@ -20,7 +20,6 @@
 [![Node](https://img.shields.io/badge/Node.js-18%2B-3C873A?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org)
 [![WebSocket](https://img.shields.io/badge/Realtime-WebSocket-7DFF6B?style=for-the-badge&labelColor=1F1D1B)](https://github.com/websockets/ws)
 [![Hosting](https://img.shields.io/badge/Hosting-Render%20Free-FFB62E?style=for-the-badge&labelColor=1F1D1B)](https://render.com)
-[![License](https://img.shields.io/badge/License-MIT-06B6D4?style=for-the-badge)](package.json)
 
 <br/>
 
@@ -158,7 +157,7 @@ Add a row to the `ROWS` array in the subject file under `src/banks/`: `[topic, l
 
 ## <img src="https://api.iconify.design/lucide/shield-check.svg?color=%2319E6FF&width=22&height=22" alt=""/> Quality and Known Limits
 
-- **Review status:** the banks were written and self-reviewed by the author. Independent machine audits re-derived every computed answer in DSA, DBMS and OS and found no wrong answers. They are not human reviewed, and Computer Networks, Machine Learning and the newest rows have only partial or no audit coverage.
+- **Review status:** the banks were written and self-reviewed by the author. They are not human expert reviewed and not every question is proven correct. Independent automated audits re-derived the computed answers and read the concept items for DSA, DBMS and OS, and for most of Computer Networks, and found no wrong answers in the items they checked. Audits are sampled and targeted, and the newest rows, Machine Learning and System Design have little or no audit coverage.
 - **Template density:** many Hard numeric questions are variants of one pattern with different numbers (for example subnetting or scheduling traces). They are correct and distinct computations, but they are not 300 different concepts. Coverage is being widened with scenario questions.
 - **Casual fairness:** this is a learning game, not a cheat-proof contest. The question bank and solo answers are available to players, so battle scores are for fun and ranked results are best effort.
 - **Identity:** players are identified by a gamer tag and a browser id, not an account.
