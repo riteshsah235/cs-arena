@@ -126,6 +126,25 @@ function client(port) {
   const overB = await S.until((m) => m.t === 'over', 8000);
   assert.strictEqual(overB.unrated, true); assert(!overB.ranked);
   assert.strictEqual((await require('./store').backend.getPlayer('cccccccccccc3')).games, 0, 'bot games must not change rating');
+  // same uid in two tabs: the second search is refused, so one profile cannot queue against itself
+  const T1 = await client(port); await T1.until((m) => m.t === 'hello');
+  const T2 = await client(port); await T2.until((m) => m.t === 'hello');
+  T1.send({ t: 'rq', uid: 'dddddddddddd4', name: 'Twin', subject: 'os', level: 'hard' });
+  await T1.until((m) => m.t === 'rq_wait');
+  T2.send({ t: 'rq', uid: 'dddddddddddd4', name: 'Twin', subject: 'os', level: 'hard' });
+  await T2.until((m) => m.t === 'rank_err');
+  T1.send({ t: 'rq_cancel' }); await T1.until((m) => m.t === 'rq_cancelled');
+  // store: a duplicate match key (retry or parallel write) applies once; distinct parallel matches all apply
+  {
+    const { backend } = require('./store');
+    await backend.ensurePlayer('eeeeeeeeeeee5', 'E1'); await backend.ensurePlayer('ffffffffffff6', 'E2');
+    const mk = (key) => ({ key, subject: 'os', level: 'mixed', sides: [{ uid: 'eeeeeeeeeeee5', delta: 16, result: 'win', score: 5 }, { uid: 'ffffffffffff6', delta: -16, result: 'loss', score: 2 }] });
+    await Promise.all([backend.applyResult(mk('dup')), backend.applyResult(mk('dup')), backend.applyResult(mk('dup'))]);
+    assert.strictEqual((await backend.getPlayer('eeeeeeeeeeee5')).games, 1, 'duplicate key must apply once');
+    await Promise.all(['p1', 'p2', 'p3'].map((k) => backend.applyResult(mk(k))));
+    const e1 = await backend.getPlayer('eeeeeeeeeeee5');
+    assert.strictEqual(e1.games, 4); assert.strictEqual(e1.rating, 1064);
+  }
   console.log('ranked tests passed');
   console.log('battle test passed: scores', JSON.stringify(over.standings.map((s) => [s.name, s.score])));
   process.exit(0);
