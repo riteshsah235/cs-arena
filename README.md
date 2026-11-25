@@ -3,8 +3,8 @@
 <div align="center">
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://readme-typing-svg.demolab.com?font=Outfit&weight=800&size=44&pause=1200&color=19E6FF&center=true&vCenter=true&width=680&height=80&lines=CS+ARENA+%26+ACADEMY;Play.+Learn.+Rank+up.;DBMS+%E2%80%A2+DSA+%E2%80%A2+OS+%E2%80%A2+CN+%E2%80%A2+ML+%E2%80%A2+System+Design">
-  <img src="https://readme-typing-svg.demolab.com?font=Outfit&weight=800&size=44&pause=1200&color=0A7EA4&center=true&vCenter=true&width=680&height=80&lines=CS+ARENA+%26+ACADEMY;Play.+Learn.+Rank+up.;DBMS+%E2%80%A2+DSA+%E2%80%A2+OS+%E2%80%A2+CN+%E2%80%A2+ML+%E2%80%A2+System+Design" alt="CS Arena & Academy"/>
+  <source media="(prefers-color-scheme: dark)" srcset="https://readme-typing-svg.demolab.com?font=Outfit&weight=800&size=34&pause=1200&color=19E6FF&center=true&vCenter=true&width=560&height=70&lines=CS+ARENA+%26+ACADEMY;Play.+Learn.+Rank+up.;Six+CS+subjects.+One+arena.">
+  <img src="https://readme-typing-svg.demolab.com?font=Outfit&weight=800&size=34&pause=1200&color=0A7EA4&center=true&vCenter=true&width=560&height=70&lines=CS+ARENA+%26+ACADEMY;Play.+Learn.+Rank+up.;Six+CS+subjects.+One+arena." alt="CS Arena & Academy"/>
 </picture>
 
 <br/>
@@ -12,6 +12,7 @@
 <p align="center">
   <b>A play-and-learn arena for CS students</b><br/>
   <i>Solo practice, 1v1 realtime battles and a ranked ladder, with an explanation after every question</i>
+  <br/><b>DBMS</b> · <b>DSA</b> · <b>OS</b> · <b>CN</b> · <b>ML</b> · <b>System Design</b>
 </p>
 
 <br/>
@@ -72,8 +73,8 @@
 | DSA | Big-O Blitz |
 | Operating Systems | Scheduler Showdown |
 | Computer Networks | Subnet Sniper |
-| Machine Learning | 103 | 213 | 119 | 435 | Live, growing |
-| System Design | 55 | 159 | 40 | 254 | Live, early |
+| Machine Learning | Metric Master |
+| System Design | Capacity Planner |
 
 ---
 
@@ -87,8 +88,8 @@ Counts are distinct static questions per level (the generated drills are not inc
 | DSA | 309 | 301 | 300 | 910 | Live |
 | Operating Systems | 301 | 318 | 301 | 920 | Live |
 | Computer Networks | 201 | 269 | 192 | 662 | Live, growing |
-| Machine Learning | 103 | 213 | 119 | 435 | Live, growing |
-| System Design | 55 | 159 | 40 | 254 | Live, early |
+| Machine Learning | 119 | 232 | 132 | 483 | Live, growing |
+| System Design | 77 | 175 | 50 | 302 | Live, early |
 
 Each question has four options, one correct answer and an explanation. Easy covers definitions and basics, Moderate covers applied concepts and Hard covers multi step reasoning and edge cases. Live counts are served at `/api/subjects`.
 
