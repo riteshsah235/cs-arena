@@ -304,7 +304,7 @@ const EASY_EXTRA = [
 ['dist','e','Redis is mostly used as a...','Key-value store and cache','Graph database','Relational database','File system','Redis keeps data in memory as key-value pairs and is widely used for caching.']
 ];
 
-const ROWS = RAW.map((r, i) => [r[0], OLD_DIFF[i], r[1], r[2], r[3], r[4], r[5], r[6]]).concat(NEW, EASY_EXTRA);
+const ROWS = RAW.map((r, i) => [r[0], OLD_DIFF[i], r[1], r[2], r[3], r[4], r[5], r[6]]).concat(NEW, EASY_EXTRA, require('./bank-dbms').ROWS);
 const BANK = ROWS.map((r, i) => ({
   id: i,
   topic: r[0],
