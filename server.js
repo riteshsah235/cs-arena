@@ -3,10 +3,10 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const { WebSocketServer } = require('ws');
-const { LEVELS } = require('./engine');
-const store = require('./store');
+const { LEVELS } = require('./src/engine');
+const store = require('./src/store');
 const ladder = store.backend;
-const { SUBJECTS, getSubject, buildQuestions, levelCounts, topicList, subjectList } = require('./subjects');
+const { SUBJECTS, getSubject, buildQuestions, levelCounts, topicList, subjectList } = require('./src/subjects');
 
 const PORT = process.env.PORT || 3000;
 const ROUNDS = Number(process.env.ROUNDS) || 10;
