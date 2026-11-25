@@ -510,7 +510,7 @@ function optionsHTML(opts) {
   return `<div class="opts">` + opts.map((o, i) => `<button class="opt" data-i="${i}"><div class="in"><span class="k">${LET[i]}</span><span class="tx${isMono(o) ? ' mono' : ''}">${esc(o)}</span></div></button>`).join('') + `</div>`;
 }
 const BRAND_SVG = `<svg viewBox="0 0 100 100"><path d="M50 6 92 29v42L50 94 8 71V29z" fill="#05060f" stroke="#19e6ff" stroke-width="6"/><path d="M33 40h34M33 60h34M50 30v40" stroke="#ff2bd6" stroke-width="7" stroke-linecap="round"/></svg>`;
-const siteFooter = () => `<footer class="pfoot"><div class="pf-top"><div class="pf-brand"><span class="pf-logo">CS <b>ARENA</b></span><p>Learn it. Test it. Climb the ranks.</p></div><nav class="pf-nav" aria-label="Footer"><a href="/" data-nav>Home</a><a href="/#subjects" data-nav>Subjects</a><a href="/dbms" data-nav>DBMS</a><a href="/dsa" data-nav>DSA</a><a href="/os" data-nav>OS</a><a href="/cn" data-nav>CN</a><a href="/ml" data-nav>ML</a><a href="/sysdesign" data-nav>System Design</a><a href="https://github.com/riteshsah235/cs-arena" target="_blank" rel="noopener">GitHub</a></nav></div><div class="pf-bot"><span>&copy; 2026 All rights reserved.</span><span>Designed &amp; Developed by <strong>Ritesh</strong></span></div></footer>`;
+const siteFooter = () => `<footer class="pfoot"><div class="pf-top"><div class="pf-brand"><span class="pf-logo">CS <b>ARENA</b></span><p>Learn it. Test it. Climb the ranks.</p></div><nav class="pf-nav" aria-label="Footer"><a href="/" data-nav>Home</a><a href="/#subjects" data-nav>Subjects</a><a href="/ranked" data-nav>Ranked</a><a href="/dbms" data-nav>DBMS</a><a href="/dsa" data-nav>DSA</a><a href="/os" data-nav>OS</a><a href="/cn" data-nav>CN</a><a href="/ml" data-nav>ML</a><a href="/sysdesign" data-nav>System Design</a><a href="https://github.com/riteshsah235/cs-arena" target="_blank" rel="noopener">GitHub</a></nav></div><div class="pf-bot"><span>&copy; 2026 All rights reserved.</span><span>Designed &amp; Developed by <strong>Ritesh</strong></span></div></footer>`;
 const footHTML = `${siteFooter()}`;
 let pagePath = '/';                  // URL of the page we return to after a game
 function setScreen(html, cls = '') { app.innerHTML = `<div class="screen ${cls}">${html}</div>`; window.scrollTo(0, 0); document.body.style.removeProperty('--accent'); }
@@ -557,6 +557,7 @@ function route(path, hash) {
   const id = path.replace(/^\//, '');
   const q = new URLSearchParams(location.search).get('room');
   if (q) { return joinScreen(q.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 5)); }
+  if (id === 'ranked') return rankedPage();
   if (SUBJECT_IDS.includes(id)) return subjectPage(id);
   landing().then(() => { if (hash) { const el = document.getElementById(hash.slice(1)); if (el) el.scrollIntoView({ behavior: 'smooth' }); } });
 }
@@ -803,6 +804,9 @@ function onMsg(m) {
     case 'q': question(m); break;
     case 'locked': S.lockedIds = S.lockedIds || {}; S.lockedIds[m.id] = true; if (m.id !== S.me) { const o = $('#oppst'); if (o && (S.room.players.length <= 2)) { o.textContent = 'LOCKED IN ✓'; o.className = 'st on'; } sfx.tick(); } strip(); break;
     case 'reveal': revealRound(m); break;
+    case 'rq_wait': S.rq = m; rankedWait(m); break;
+    case 'rq_cancelled': break;
+    case 'rank_err': toast(m.msg, true); sfx.wrong(); closeSock(); rankedPage(m.offline ? m.msg : ''); break;
     case 'over': overScreen(m); break;
     case 'player_left': toast((m.name || 'A player') + ' left the room', true); if (S.names) delete S.names[m.id]; if (S.scores) delete S.scores[m.id]; if (S.room) S.room.players = S.room.players.filter((p) => p.id !== m.id); strip(); break;
     case 'rematch_vote': S.votes = m.ids; { const b = $('#rm'); if (b) { const mine = m.ids.includes(S.me); b.textContent = mine ? `Waiting… (${m.ids.length} ready)` : `Rematch (${m.ids.length} ready)`; b.disabled = mine; } } break;
@@ -938,6 +942,8 @@ function overScreen(m) {
   const place = m.standings.findIndex((s) => s.id === S.me) + 1;
   const row = (s, i) => `<div class="panel cut stand ${i === 0 && m.winner ? 'first' : ''}"><span class="pos">${i + 1}</span><span class="nm">${esc(s.name)}${s.id === S.me ? ' (YOU)' : ''}<div class="small dim" style="letter-spacing:.05em;font-family:var(--body)">${s.correct}/${m.total} correct</div></span><span class="pt">${s.score}</span></div>`;
   const sb = subj(m.subject);
+  const rk = m.ranked && m.ranked[S.me];
+  const rankCard = m.kind === 'bot' ? '<div class="panel cut edge small dim center">Practice match against ByteBot. Unrated: your rating did not change.</div>' : m.kind === 'ranked' ? (rk ? `<div class="panel cut edge center"><div class="lbl">Rating</div><div class="disp" style="font-size:30px">${rk.before} → ${rk.after} <span style="color:${rk.delta >= 0 ? 'var(--lime)' : 'var(--red)'}">${rk.delta >= 0 ? '+' : ''}${rk.delta}</span></div><div class="small dim">${esc(rk.tier)}${m.forfeit ? ' · win by forfeit' : ''}</div></div>` : `<div class="panel cut edge center" style="border-color:var(--red)">${esc((m.ranked && m.ranked.error) || 'Result could not be saved. No rating was changed.')}</div>`) : '';
   setScreen(`
     <div class="banner ${res}"><div class="dim disp small" style="letter-spacing:.4em;margin-bottom:8px">${esc(sb.name.toUpperCase())} BATTLE OVER ${lvBadge(m.level)}</div><h2>${res === 'win' ? 'VICTORY' : res === 'lose' ? (m.standings.length > 2 ? 'PLACE #' + place : 'DEFEAT') : 'DRAW'}</h2></div>
     <div style="display:flex;flex-direction:column;gap:10px">${m.standings.map(row).join('')}</div>
@@ -947,11 +953,70 @@ function overScreen(m) {
       <div class="panel cut stat"><div class="v">${rankOf(P.xp).name.split(' ')[0]}</div><div class="l">${after.i > before.i ? 'RANK UP!' : 'YOUR RANK'}</div></div>
     </div>
     ${reviewHTML((m.review || []).map((r) => ({ q: r, yours: r.choices[S.me] })))}
-    <div class="row center"><button class="btn amber" id="rm">Rematch</button><button class="btn ghost" id="hm">Leave arena</button></div>${footHTML}`);
+    ${rankCard}
+    <div class="row center">${m.kind === 'ranked' ? '<button class="btn amber" id="rm">Back to ladder</button>' : '<button class="btn amber" id="rm">Rematch</button>'}<button class="btn ghost" id="hm">Leave arena</button></div>${footHTML}`);
   store.save();
   res === 'win' ? sfx.win() : res === 'lose' ? sfx.lose() : sfx.click();
-  $('#rm').onclick = () => { sfx.click(); sendWS({ t: 'rematch' }); $('#rm').textContent = 'Waiting for others…'; $('#rm').disabled = true; };
+  $('#rm').onclick = () => { sfx.click(); if (m.kind === 'ranked') { leaveToPage(); return; } sendWS({ t: 'rematch' }); $('#rm').textContent = 'Waiting for others…'; $('#rm').disabled = true; };
   $('#hm').onclick = () => leaveToPage();
+}
+
+
+/* ============================================================ RANKED */
+function myUid() {
+  if (!P.uid) { const a = new Uint8Array(12); crypto.getRandomValues(a); P.uid = Array.from(a, (b) => b.toString(16).padStart(2, '0')).join(''); store.save(); }
+  return P.uid;
+}
+async function rankedPage(warn) {
+  cur = 'ranked'; pagePath = '/ranked'; S = {};
+  document.title = 'Ranked ladder | CS Arena';
+  await loadSubjects();
+  const ready = SUBJ_LIST.filter((s) => s.ready);
+  const sel = S.rsub = (ready.find((s) => s.id === P.rsub) || ready[0] || { id: 'dbms' }).id;
+  const lvl = S.rlvl = P.rlvl || 'mixed';
+  let ladder = { status: 'offline', top: [], durable: false }, prof = null;
+  try { ladder = await (await fetch('/api/ladder')).json(); } catch {}
+  try { prof = await (await fetch('/api/profile?uid=' + myUid())).json(); } catch {}
+  const me = prof && prof.player;
+  const offline = ladder.status !== 'ok' || (prof && prof.status === 'offline');
+  const rows = ladder.top.length ? ladder.top.map((r, i) => `<div class="panel cut stand ${i === 0 ? 'first' : ''}"><span class="pos">${i + 1}</span><span class="nm">${esc(r.name)}<div class="small dim" style="letter-spacing:.05em;font-family:var(--body)">${esc(r.tier)} · ${r.wins}W / ${r.games} played</div></span><span class="pt">${r.rating}</span></div>`).join('') : '<div class="dim small">No ranked matches played yet. Be the first on the ladder.</div>';
+  setScreen(`
+    <div class="crumb"><a href="/" data-nav>HOME</a> › <span class="cur">RANKED</span></div>
+    <div class="banner"><div class="dim disp small" style="letter-spacing:.4em;margin-bottom:8px">1V1 COMPETITIVE</div><h2>RANKED LADDER</h2></div>
+    ${warn || offline ? `<div class="panel cut edge" style="border-color:var(--red)"><b style="color:var(--red)">Ranked is offline.</b> <span class="dim">${esc(warn || 'The ladder database is unreachable, so ratings cannot be saved. Play unrated in any subject page for now.')}</span></div>` : ''}
+    ${!offline && !ladder.durable ? '<div class="panel cut edge small dim">This ladder is temporary and resets when the server restarts.</div>' : ''}
+    <div class="panel cut edge"><div class="lbl">Your rating</div><div class="disp" style="font-size:34px">${me ? me.rating : 1000} <span class="dim" style="font-size:14px">${esc(me ? me.tier : 'Rookie')} · ${me ? me.games : 0} ranked games</span></div><div class="small dim">Your ranked identity is stored in this browser. Clearing site data starts a new profile.</div></div>
+    <div class="panel cut edge"><label class="lbl" for="rnick">Your gamer tag</label><input type="text" id="rnick" maxlength="16" placeholder="e.g. NullPointer" value="${esc(P.name)}" autocomplete="off"></div>
+    <div class="panel cut edge"><label class="lbl">Subject</label><div class="lvrow" id="rsubs">${ready.map((s) => `<button class="chip lv ${s.id === sel ? 'on' : ''}" data-s="${s.id}" style="--c:${s.color}">${esc(s.name.toUpperCase())}</button>`).join('')}</div>
+      <label class="lbl" style="margin-top:12px">Difficulty</label><div class="lvrow" id="rlvs">${['easy', 'moderate', 'hard', 'mixed'].map((l) => `<button class="chip lv ${lvl === l ? 'on' : ''}" data-l="${l}" style="--c:${LEVEL_UI[l][1]}">${LEVEL_UI[l][0]}</button>`).join('')}</div></div>
+    <div class="row center"><button class="btn amber" id="rfind" ${offline ? 'disabled' : ''}>Find ranked match</button></div>
+    <div class="sec"><header><div class="eyebrow">LEADERBOARD</div><h2>Top players</h2></header><div style="display:flex;flex-direction:column;gap:10px">${rows}</div></div>
+    ${footHTML}`);
+  app.querySelectorAll('#rsubs .chip').forEach((b) => (b.onclick = () => { P.rsub = S.rsub = b.dataset.s; store.save(); app.querySelectorAll('#rsubs .chip').forEach((x) => x.classList.toggle('on', x === b)); }));
+  app.querySelectorAll('#rlvs .chip').forEach((b) => (b.onclick = () => { P.rlvl = S.rlvl = b.dataset.l; store.save(); app.querySelectorAll('#rlvs .chip').forEach((x) => x.classList.toggle('on', x === b)); }));
+  $('#rfind').onclick = () => {
+    const name = ($('#rnick').value || '').trim();
+    if (!name) return toast('Enter a gamer tag first', true);
+    P.name = name; store.save(); sfx.click();
+    const subject = S.rsub, level = S.rlvl;
+    S = { name, subject, mode: 'rank' };
+    openSock(() => sendWS({ t: 'rq', uid: myUid(), name, subject, level }));
+  };
+}
+function rankedWait(m) {
+  cur = 'rankWait';
+  const t0 = Date.now();
+  setScreen(`<div class="banner"><div class="dim disp small" style="letter-spacing:.4em;margin-bottom:8px">${esc(subj(S.subject).name.toUpperCase())} · RATING ${m.rating} · ${esc(m.tier.toUpperCase())}</div><h2>SEARCHING FOR A RIVAL…</h2></div>
+    <div class="panel cut edge center"><div class="dim" id="rwt">Waiting 0s. The search range widens the longer you wait.</div></div>
+    <div class="row center"><button class="btn amber" id="rbot" disabled>Practise vs ByteBot (unrated) in 20s</button><button class="btn ghost" id="rcx">Cancel</button></div>
+    ${footHTML}`);
+  const tick = setInterval(() => {
+    if (cur !== 'rankWait') return clearInterval(tick);
+    const sec = Math.floor((Date.now() - t0) / 1000); const w = $('#rwt'); if (w) w.textContent = 'Waiting ' + sec + 's. The search range widens the longer you wait.';
+    const b = $('#rbot'); if (b) { b.disabled = sec < 20; b.textContent = sec < 20 ? 'Practise vs ByteBot (unrated) in ' + (20 - sec) + 's' : 'Practise vs ByteBot (unrated, no rating change)'; }
+  }, 1000);
+  $('#rbot').onclick = () => { sfx.click(); sendWS({ t: 'rbot' }); };
+  $('#rcx').onclick = () => { sendWS({ t: 'rq_cancel' }); closeSock(); go('/ranked', true); };
 }
 
 /* ============================================================ boot + Back button */
