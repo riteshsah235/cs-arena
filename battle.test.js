@@ -84,6 +84,49 @@ function client(port) {
   for (let k = 0; k < 3; k++) P[k].send({ t: 'rematch' });
   await P[0].until((m) => m.t === 'get_ready' && P[0].log.filter((x) => x.t === 'get_ready').length === 2);
   console.log('room battle test passed: standings', JSON.stringify(over2.standings.map((s) => [s.name, s.score])));
+  // --- scenario 3: ranked queue, Elo, ladder, forfeit and unrated bot fallback (memory ladder, no DATABASE_URL) ---
+  assert.strictEqual(require('./store').durable, false);
+  const R = [await client(port), await client(port)];
+  for (const p of R) await p.until((m) => m.t === 'hello');
+  R[0].send({ t: 'rq', uid: 'aaaaaaaaaaaa1', name: 'RA', subject: 'dsa', level: 'mixed' });
+  R[1].send({ t: 'rq', uid: 'bbbbbbbbbbbb2', name: 'RB', subject: 'dsa', level: 'mixed' });
+  const lbR = await R[0].until((m) => m.t === 'lobby' && m.ranked);
+  assert.strictEqual(lbR.kind, 'ranked');
+  for (let i = 0; i < 4; i++) {
+    await R[0].until((m) => m.t === 'q' && m.i === i, 8000);
+    R[0].send({ t: 'ans', i, c: 0 }); R[1].send({ t: 'ans', i, c: 1 });
+    await R[0].until((m) => m.t === 'reveal' && m.i === i, 8000);
+  }
+  const overR = await R[0].until((m) => m.t === 'over', 8000);
+  const dl = Object.values(overR.ranked).map((x) => x.delta);
+  assert.strictEqual(dl.length, 2); assert(dl[0] + dl[1] === 0 || Math.abs(dl[0] + dl[1]) <= 1, 'zero-sum Elo');
+  assert(overR.ranked[R[0].log.find((m) => m.t === 'joined').you].before === 1000);
+  R[0].send({ t: 'rematch' }); R[1].send({ t: 'rematch' }); // ranked has no rematch, must be ignored
+  await new Promise((r) => setTimeout(r, 400));
+  assert.strictEqual(R[0].log.filter((m) => m.t === 'get_ready').length, 1);
+  const ladderTop = await require('./store').backend.top(10);
+  assert.strictEqual(ladderTop.length, 2); assert(ladderTop[0].games === 1);
+  // forfeit: fresh clients queue, one leaves mid-game
+  R[0].send({ t: 'leave' }); R[1].send({ t: 'leave' });
+  const F = [await client(port), await client(port)];
+  for (const p of F) await p.until((m) => m.t === 'hello');
+  F[0].send({ t: 'rq', uid: 'aaaaaaaaaaaa1', name: 'RA', subject: 'dsa', level: 'mixed' });
+  F[1].send({ t: 'rq', uid: 'bbbbbbbbbbbb2', name: 'RB', subject: 'dsa', level: 'mixed' });
+  await F[0].until((m) => m.t === 'q', 8000);
+  F[1].ws.close();
+  const ff = await F[0].until((m) => m.t === 'over' && m.forfeit, 5000);
+  assert.strictEqual(ff.ranked[Object.keys(ff.ranked).find((k) => ff.ranked[k].delta > 0)].delta > 0, true);
+  // bot fallback is unrated
+  const S = await client(port); await S.until((m) => m.t === 'hello');
+  S.send({ t: 'rq', uid: 'cccccccccccc3', name: 'Solo', subject: 'os', level: 'easy' });
+  await S.until((m) => m.t === 'rq_wait');
+  S.send({ t: 'rbot' });
+  await S.until((m) => m.t === 'q', 8000);
+  for (let i = 0; i < 4; i++) { await S.until((m) => m.t === 'q' && m.i === i, 8000); S.send({ t: 'ans', i, c: 0 }); await S.until((m) => m.t === 'reveal' && m.i === i, 8000); }
+  const overB = await S.until((m) => m.t === 'over', 8000);
+  assert.strictEqual(overB.unrated, true); assert(!overB.ranked);
+  assert.strictEqual((await require('./store').backend.getPlayer('cccccccccccc3')).games, 0, 'bot games must not change rating');
+  console.log('ranked tests passed');
   console.log('battle test passed: scores', JSON.stringify(over.standings.map((s) => [s.name, s.score])));
   process.exit(0);
-})().catch((e) => { console.error('FAIL', e); process.exit(1); });
+})().catch((e) => { console.error('FAIL', e.message, e.stack.split('\n')[2]); process.exit(1); });
