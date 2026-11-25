@@ -67,10 +67,50 @@ const BIGO = [
   ['hard', GP, 'Topological sort using Kahn\'s algorithm on a DAG with adjacency lists.', 'O(V + E)', 'Each vertex enters the queue once and each edge decreases one indegree once.']
 ];
 BIGO.forEach((b) => { if (b[1] === GP) { b[1] = ['O(V)', 'O(V + E)', 'O(V²)', 'O(E log V)', 'O((V + E) log V)', 'O(V · E)']; } });
+// Generated Big-O items: fresh parameters every question, answers computed by code.
+function bigoGenerated(level) {
+  const v = pickOne(['n', 'n', 'N', 'len']);
+  const pool = ['O(1)', 'O(log n)', 'O(n)', 'O(n log n)', 'O(n²)', 'O(n³)', 'O(2ⁿ)'];
+  const mk = (code, ans, ex) => finish(level, 'Big-O Blitz', 'Name the tightest Big-O bound for this code.\n' + code, ans, shuffle(pool.filter((x) => x !== ans)), ex);
+  if (level === 'easy') {
+    const k = rint(2, 9), c = pickOne([2, 3, 4, 5]);
+    return pickOne([
+      () => mk(`for i in 1..${v}:\n    for j in 1..${k}:\n        work()`, 'O(n)', `The inner loop always runs ${k} times, a constant, so the total is ${k} * ${v} = O(n).`),
+      () => mk(`i = 1\nwhile i < ${v}:\n    i = i * ${c}\n    work()`, 'O(log n)', `i is multiplied by ${c} each pass, so it takes about log base ${c} of ${v} steps. Constant bases do not change the class: O(log n).`),
+      () => mk(`i = 0\nwhile i < ${v}:\n    i = i + ${c}\n    work()`, 'O(n)', `i grows by the constant ${c}, so there are about ${v}/${c} passes. That is O(n).`),
+      () => mk(`for i in 1..${k * 100}:\n    work()`, 'O(1)', `The loop count ${k * 100} does not depend on ${v}, so the cost is constant.`),
+    ])();
+  }
+  if (level === 'moderate') {
+    const c = pickOne([2, 3, 4]);
+    return pickOne([
+      () => mk(`for i in 1..${v}:\n    for j in 1..i:\n        work()`, 'O(n²)', `The inner loop runs i times, so the total is 1 + 2 + ... + ${v}, about ${v}²/2. That is O(n²).`),
+      () => mk(`for i in 1..${v}:\n    j = ${v}\n    while j > 1:\n        j = j / ${c}\n        work()`, 'O(n log n)', `The outer loop runs ${v} times and each inner loop takes about log base ${c} of ${v} steps. Total O(n log n).`),
+      () => mk(`for i in 1..${v}:\n    work()\nfor j in 1..${v}:\n    for k in 1..${c}:\n        work()`, 'O(n)', `Two passes of ${v} steps with a constant inner factor ${c}. Added together that is still O(n).`),
+    ])();
+  }
+  const a = pickOne([1, 2, 3, 4, 8, 9]), b = pickOne([2, 3]), d = pickOne([0, 1, 2]);
+  const e = Math.log(a) / Math.log(b);
+  const ef = Math.round(e * 100) / 100;
+  const isInt = Math.abs(e - Math.round(e)) < 1e-9;
+  const sub = { 2: '₂', 3: '₃' };
+  // Exact class: integer exponents print as n, n², n³. Otherwise keep the exact log form; decimals appear only in the explanation text.
+  const expTxt = isInt ? (Math.round(e) === 1 ? 'n' : Math.round(e) === 2 ? 'n²' : Math.round(e) === 3 ? 'n³' : 'n^' + Math.round(e)) : `n^(log${sub[b]}${a})`;
+  const leafAns = `Θ(${expTxt})`;
+  const eq = Math.abs(e - d) < 1e-9;
+  let ans, why;
+  if (eq) { ans = d === 0 ? 'Θ(log n)' : d === 1 ? 'Θ(n log n)' : 'Θ(n² log n)'; why = `log base ${b} of ${a} equals ${d}, so the work per level matches the leaves: Θ(n^${d} log n).`; }
+  else if (e > d) { ans = leafAns; why = `log base ${b} of ${a} is ${isInt ? Math.round(e) : 'log' + sub[b] + a + ', approximately ' + ef}, larger than ${d}, so the leaves dominate: ${leafAns}.`; }
+  else { ans = d === 0 ? 'Θ(1)' : d === 1 ? 'Θ(n)' : 'Θ(n²)'; why = `log base ${b} of ${a} is ${isInt ? Math.round(e) : 'about ' + ef}, smaller than ${d}, so the root work dominates: Θ(n^${d}).`; }
+  const cand = ['Θ(1)', 'Θ(log n)', 'Θ(n)', 'Θ(n log n)', 'Θ(n²)', 'Θ(n² log n)', 'Θ(n³)'];
+  const cost = d === 0 ? '1' : d === 1 ? 'n' : 'n²';
+  return finish(level, 'Big-O Blitz', `Solve the recurrence for its tight bound (Θ).\nT(n) = ${a}·T(n/${b}) + ${cost}`, ans, shuffle(cand.filter((x) => x !== ans)), 'Master theorem: compare log base ' + b + ' of ' + a + ' with the exponent ' + d + ' of the work term. ' + why);
+}
 function dsaDrill(level) {
+  if (Math.random() < 0.7) return bigoGenerated(level);
   const pool = BIGO.filter((b) => b[0] === level);
   const [, dist, text, ans, ex] = pickOne(pool);
-  return finish(level, 'Big-O Blitz', text.includes('\n') ? 'Name the time complexity of this code.\n' + text.split('\n').slice(1).join('\n') : text, ans, shuffle(dist.filter((x) => x !== ans)), ex);
+  return finish(level, 'Big-O Blitz', text.includes('\n') ? 'Name the tightest Big-O bound for this code.\n' + text.split('\n').slice(1).join('\n') : (/tightest/i.test(text) ? text : text + ' Give the tightest Big-O bound.'), ans, shuffle(dist.filter((x) => x !== ans)), ex);
 }
 
 /* ---------------------------------------------------------------- OS: Scheduler Showdown */
