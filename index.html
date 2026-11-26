@@ -385,12 +385,13 @@ pre.code{margin:14px 0 0;padding:14px 16px;background:#05070d;border:1px solid v
 .pf-bot{display:flex;justify-content:space-between;gap:10px 20px;flex-wrap:wrap;margin-top:26px;padding-top:18px;border-top:1px solid var(--line);font-size:13px}
 .pf-bot strong{color:var(--ink);font-weight:600}
 @media(max-width:600px){.pf-top{flex-direction:column}.pf-bot{flex-direction:column}}
+.boot{min-height:70vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:24px}.boot-spin{width:34px;height:34px;border-radius:50%;border:3px solid rgba(255,255,255,.12);border-top-color:#818cf8;animation:bootspin .8s linear infinite}.boot-t{font-weight:700;font-size:18px;color:#e8ecf8}.boot-s{font-size:13px;color:#8d96b0}@keyframes bootspin{to{transform:rotate(360deg)}}@media (prefers-reduced-motion:reduce){.boot-spin{animation-duration:2.4s}}
 </style>
 </head>
 <body>
 <div class="gridbg"></div>
 <button class="mute" id="mute" aria-label="Toggle sound" title="Sound">🔊</button>
-<div id="app"></div>
+<div id="app"><div class="boot" role="status" aria-live="polite"><div class="boot-spin"></div><div class="boot-t">Loading CS Arena…</div><div class="boot-s">The free server may take a few seconds to wake up.</div></div></div>
 <script>
 'use strict';
 /* ============================================================ helpers */
@@ -536,6 +537,7 @@ document.addEventListener('click', (e) => {
 });
 function route(path, hash) {
   closeSock();
+  app.innerHTML = '<div class="boot" role="status" aria-live="polite"><div class="boot-spin"></div><div class="boot-t">Loading CS Arena…</div><div class="boot-s">The free server may take a few seconds to wake up.</div></div>';
   const id = path.replace(/^\//, '');
   const q = new URLSearchParams(location.search).get('room');
   if (q) { return joinScreen(q.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 5)); }
