@@ -80,18 +80,18 @@
 
 ## <img src="https://api.iconify.design/lucide/library.svg?color=%2319E6FF&width=22&height=22" alt=""/> Subjects & Question Banks
 
-Counts are distinct static questions per level (the generated drills are not included). Snapshot taken on 25 Nov 2026, the build is still in progress.
+Counts are distinct static questions per level (the generated drills are not included). Final snapshot, 26 Nov 2026. Development has stopped, so these counts will not change.
 
 | Subject | Easy | Moderate | Hard | Total | Status |
 |:---|---:|---:|---:|---:|:---|
 | DBMS | 303 | 304 | 300 | 907 | Live |
 | DSA | 309 | 301 | 300 | 910 | Live |
 | Operating Systems | 301 | 320 | 299 | 920 | Live |
-| Computer Networks | 247 | 321 | 200 | 768 | Live, growing |
-| Machine Learning | 195 | 325 | 159 | 679 | Live, growing |
-| System Design | 147 | 270 | 74 | 491 | Live, early |
+| Computer Networks | 247 | 321 | 200 | 768 | Live |
+| Machine Learning | 195 | 325 | 159 | 679 | Live |
+| System Design | 147 | 270 | 74 | 491 | Live, partial |
 
-Each question has four options, one correct answer and an explanation. Easy covers definitions and basics, Moderate covers applied concepts and Hard covers multi step reasoning and edge cases. Live counts are served at `/api/subjects`.
+Each question has four options, one correct answer and an explanation. Easy covers definitions and basics, Moderate covers applied concepts and Hard covers multi step reasoning and edge cases. Live counts are served at `/api/subjects`. Not every subject reached 300 questions per level: Operating Systems Hard has 299, and Computer Networks, Machine Learning and System Design are below 300 on some levels, as the table shows.
 
 ---
 
@@ -121,12 +121,14 @@ cs-arena/
 │       ├── bank-dsa.js
 │       ├── bank-os.js
 │       ├── bank-cn.js
-│       └── bank-ml.js
+│       ├── bank-ml.js
+│       └── bank-sysdesign.js
 ├── tests/
 │   ├── battle.test.js     End to end 1v1 battle over WebSocket
 │   └── store.test.js      Ladder idempotency and concurrency
 └── scripts/
-    └── validate.js        Question bank validator and coverage report
+    ├── validate.js        Question bank validator and coverage report
+    └── verify-dsa-drill.js  Checks the DSA drill generator
 ```
 
 ---
@@ -159,7 +161,7 @@ Add a row to the `ROWS` array in the subject file under `src/banks/`: `[topic, l
 ## <img src="https://api.iconify.design/lucide/shield-check.svg?color=%2319E6FF&width=22&height=22" alt=""/> Quality and Known Limits
 
 - **Review status:** the banks were written and self-reviewed by the author. They are not human expert reviewed and not every question is proven correct. Independent automated audits re-derived the computed answers and read the concept items for DSA, DBMS and OS, and for most of Computer Networks, and found no wrong answers in the items they checked. Audits are sampled and targeted, and the newest rows, Machine Learning and System Design have little or no audit coverage.
-- **Template density:** many Hard numeric questions are variants of one pattern with different numbers (for example subnetting or scheduling traces). They are correct and distinct computations, but they are not 300 different concepts. Coverage is being widened with scenario questions.
+- **Template density:** many Hard numeric questions are variants of one pattern with different numbers (for example subnetting or scheduling traces). They are correct and distinct computations, but they are not 300 different concepts. Some of these were replaced with scenario style questions before development stopped, but the density has not been removed.
 - **Casual fairness:** this is a learning game, not a cheat-proof contest. The question bank and solo answers are available to players, so battle scores are for fun and ranked results are best effort.
 - **Identity:** players are identified by a gamer tag and a browser id, not an account.
 - **Hosting:** free tier, so cold starts and restarts can interrupt rooms.
@@ -170,10 +172,12 @@ Add a row to the `ROWS` array in the subject file under `src/banks/`: `[topic, l
 
 - [x] DBMS, DSA and Operating Systems banks above 300 per level
 - [x] Ranked ladder, ByteBot practice and skill drills
-- [ ] Computer Networks to 300 per level
-- [ ] Machine Learning bank
-- [ ] System Design bank and zones
-- [ ] More scenario style Hard questions to reduce template density
+- [x] Operating Systems to about 300 per level (Hard is 299)
+- [x] Machine Learning and System Design banks added
+- [ ] Computer Networks, Machine Learning and System Design to 300 per level (not reached)
+- [ ] More scenario style Hard questions to reduce template density (partly done)
+
+Development has stopped, so the unchecked items are not planned.
 
 ---
 
